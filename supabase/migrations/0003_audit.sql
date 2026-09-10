@@ -68,7 +68,7 @@ begin
   -- qisqa izoh
   v_summary := coalesce(
     case when tg_table_name = 'contracts'
-         then '№ ' || (rec ->> 'number') else null end,
+         then 'Shartnoma ' || (rec ->> 'number') else null end,
     rec ->> 'name',
     rec ->> 'description',
     rec ->> 'purpose',

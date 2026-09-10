@@ -1,7 +1,6 @@
 -- ============================================================
 -- Birja — to'liq Supabase o'rnatish (bitta fayl)
--- supabase.com > loyihangiz > SQL Editor > New query > shu matnni
--- to'liq joylashtiring va Run bosing. Xatosiz tugashi kerak.
+-- SQL Editor > New query > shu matnni to'liq joylang > Run.
 -- Qayta ishga tushirish xavfsiz (idempotent).
 -- ============================================================
 
@@ -279,7 +278,7 @@ begin
   -- qisqa izoh
   v_summary := coalesce(
     case when tg_table_name = 'contracts'
-         then '№ ' || (rec ->> 'number') else null end,
+         then 'Shartnoma ' || (rec ->> 'number') else null end,
     rec ->> 'name',
     rec ->> 'description',
     rec ->> 'purpose',
