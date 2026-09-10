@@ -12,6 +12,7 @@ import type {
 } from '@/types/db';
 import { useContract, useSaveContract, type ContractInput } from '@/api/contracts';
 import { useOrganizations } from '@/api/organizations';
+import { useCompanies } from '@/api/companies';
 import { useToast } from '@/components/ui/toast';
 import { PageHeader } from '@/components/common/PageHeader';
 import { Field } from '@/components/common/Field';
@@ -23,6 +24,7 @@ import { Select } from '@/components/ui/select';
 
 const schema = z.object({
   number: z.string().min(1, t.common.required),
+  company_id: z.string().optional(),
   organization_id: z.string().optional(),
   signed_date: z.string().optional(),
   subject: z.string().optional(),
@@ -66,6 +68,7 @@ export function ContractForm() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { data: orgs } = useOrganizations();
+  const { data: companies } = useCompanies();
   const { data: existing, isLoading } = useContract(id);
   const save = useSaveContract();
 
@@ -77,6 +80,7 @@ export function ContractForm() {
     resolver: zodResolver(schema),
     values: {
       number: existing?.number ?? '',
+      company_id: existing?.company_id ?? '',
       organization_id: existing?.organization_id ?? '',
       signed_date: existing?.signed_date ?? '',
       subject: existing?.subject ?? '',
@@ -100,6 +104,7 @@ export function ContractForm() {
     const v = schema.parse(raw);
     const payload: ContractInput = {
       number: v.number.trim(),
+      company_id: v.company_id || null,
       organization_id: v.organization_id || null,
       signed_date: v.signed_date || null,
       subject: v.subject?.trim() || null,
@@ -140,6 +145,23 @@ export function ContractForm() {
       <Card>
         <CardContent className="pt-5">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <Field
+              label={t.contract.company}
+              hint={
+                (companies ?? []).length === 0
+                  ? t.company.pickFirst
+                  : undefined
+              }
+            >
+              <Select
+                placeholder={t.common.none}
+                options={(companies ?? []).map((c) => ({
+                  value: c.id,
+                  label: c.name,
+                }))}
+                {...register('company_id')}
+              />
+            </Field>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Field label={t.contract.number} error={errors.number?.message}>
                 <Input autoFocus {...register('number')} />

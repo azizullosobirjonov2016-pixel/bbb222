@@ -45,6 +45,7 @@ export function Contracts() {
         c.number.toLowerCase().includes(s) ||
         (c.subject ?? '').toLowerCase().includes(s) ||
         (c.organization?.name ?? '').toLowerCase().includes(s) ||
+        (c.company?.name ?? '').toLowerCase().includes(s) ||
         (c.external_ref ?? '').toLowerCase().includes(s)
       );
     });
@@ -116,6 +117,8 @@ export function Contracts() {
                         )}
                       </div>
                       <p className="mt-1 truncate text-sm text-muted-foreground">
+                        {c.company?.name ?? '—'}
+                        <span className="mx-1">→</span>
                         {c.organization?.name ?? '—'}
                         {c.subject ? ` · ${c.subject}` : ''}
                       </p>

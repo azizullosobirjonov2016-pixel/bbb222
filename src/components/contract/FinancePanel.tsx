@@ -48,6 +48,7 @@ export function FinancePanel({ finance, currency }: Props) {
   const f: ContractFinance = finance ?? {
     contract_id: '',
     user_id: '',
+    company_id: null,
     our_role: 'seller',
     currency,
     contract_value: 0,

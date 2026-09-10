@@ -2,6 +2,21 @@
 
 Format: [Keep a Changelog](https://keepachangelog.com/), sana — YYYY-MM-DD.
 
+## [0.2.0] — 2026-09-10
+
+### Qo'shildi
+- **Mening tashkilotlarim** (`companies`) — foydalanuvchining o'z yuridik shaxslari
+  (4 tagacha). Har shartnomada endi ikki taraf: `company_id` (biz, yetkazib
+  beruvchi) + `organization_id` (kontragent/buyurtmachi).
+- `/companies` sahifasi — CRUD.
+- Shartnoma formasi: "Mening tashkilotim" tanlash; ro'yxat va detalda ikkala
+  taraf ko'rsatiladi ("Bizniki → Kontragent").
+- Moliya sahifasi: "Mening tashkilotlarim" bo'yicha filtr va alohida kesim
+  (chart).
+- Migratsiya `0005_companies.sql` (mavjud bazaga qo'shimcha; `contract_finance`
+  view'ga `company_id` qo'shildi).
+- Atamalar aniqlashtirildi: "Tashkilotlar" → **Kontragentlar**.
+
 ## [0.1.0] — 2026-09-09
 
 ### Qo'shildi (1-bosqich, A–D)

@@ -193,7 +193,13 @@ export function ContractDetail() {
             </Badge>
           )}
         </div>
-        <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-sm sm:grid-cols-4">
+        <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-sm sm:grid-cols-3">
+          <div>
+            <dt className="text-muted-foreground">{t.contract.company}</dt>
+            <dd className="mt-0.5 font-medium">
+              {contract.company?.name ?? '—'}
+            </dd>
+          </div>
           <div>
             <dt className="text-muted-foreground">{t.contract.organization}</dt>
             <dd className="mt-0.5 font-medium">

@@ -10,8 +10,9 @@ Migratsiyalar `supabase/migrations/` da; hammasi birlashtirilgan holda
 
 | Jadval | Vazifa | Muhim ustunlar |
 |---|---|---|
-| `organizations` | Kontragentlar | `name, inn_stir, type(customer/supplier/both)` |
-| `contracts` | Shartnomalar | `number, organization_id, signed_date, our_role(seller/buyer), total_amount, currency, status, deadline, source(manual/uzex), external_ref/url` |
+| `companies` | **Mening tashkilotlarim** — siz nomidan shartnoma tuziladigan yuridik shaxslar (4 tagacha) | `name, inn_stir, note` |
+| `organizations` | **Kontragentlar** (buyurtmachilar) | `name, inn_stir, type(customer/supplier/both)` |
+| `contracts` | Shartnomalar. Ikki taraf: `company_id` (biz) + `organization_id` (kontragent) | `number, company_id, organization_id, signed_date, our_role(seller/buyer), total_amount, currency, status, deadline, source(manual/uzex), external_ref/url` |
 | `obligations` | Bajarish talablari | `contract_id, description, qty, unit, unit_price, amount, due_date, status(pending/partial/done)` |
 | `deliveries` | Topshirilgan ishlar | `contract_id, obligation_id?, date, qty, amount, document_ref` |
 | `payments` | To'lovlar | `contract_id, direction(in/out), date, amount, currency, purpose` |

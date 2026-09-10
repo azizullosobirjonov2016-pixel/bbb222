@@ -5,6 +5,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { SetupScreen } from '@/pages/SetupScreen';
 import { Login } from '@/pages/Login';
 import { Dashboard } from '@/pages/Dashboard';
+import { Companies } from '@/pages/Companies';
 import { Organizations } from '@/pages/Organizations';
 import { Contracts } from '@/pages/Contracts';
 import { ContractDetail } from '@/pages/ContractDetail';
@@ -35,6 +36,7 @@ export default function App() {
     <Routes>
       <Route element={<AppLayout />}>
         <Route path="/" element={<Dashboard />} />
+        <Route path="/companies" element={<Companies />} />
         <Route path="/organizations" element={<Organizations />} />
         <Route path="/contracts" element={<Contracts />} />
         <Route path="/contracts/new" element={<ContractForm />} />

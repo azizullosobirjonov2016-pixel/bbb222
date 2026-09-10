@@ -12,6 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 const entityOptions = [
   { value: '', label: t.common.all },
   { value: 'contracts', label: t.activity.entityLabels.contracts },
+  { value: 'companies', label: t.activity.entityLabels.companies },
   { value: 'organizations', label: t.activity.entityLabels.organizations },
   { value: 'obligations', label: t.activity.entityLabels.obligations },
   { value: 'deliveries', label: t.activity.entityLabels.deliveries },

@@ -10,7 +10,11 @@ export type ContractInput = Omit<
 
 export interface ContractRow extends Contract {
   organization: { id: string; name: string } | null;
+  company: { id: string; name: string } | null;
 }
+
+const SELECT =
+  '*, organization:organizations(id, name), company:companies(id, name)';
 
 export function useContracts() {
   return useQuery({
@@ -19,7 +23,7 @@ export function useContracts() {
       unwrap(
         await supabase
           .from('contracts')
-          .select('*, organization:organizations(id, name)')
+          .select(SELECT)
           .order('signed_date', { ascending: false, nullsFirst: false })
           .order('created_at', { ascending: false }),
       ) as ContractRow[],
@@ -34,7 +38,7 @@ export function useContract(id: string | undefined) {
       unwrap(
         await supabase
           .from('contracts')
-          .select('*, organization:organizations(id, name)')
+          .select(SELECT)
           .eq('id', id)
           .single(),
       ) as ContractRow,

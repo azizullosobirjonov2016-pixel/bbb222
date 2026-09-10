@@ -11,7 +11,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select } from '@/components/ui/select';
 
-const APP_VERSION = '0.1.0';
+const APP_VERSION = '0.2.0';
 
 export function Settings() {
   const { user, signOut } = useAuth();

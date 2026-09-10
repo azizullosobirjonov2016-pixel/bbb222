@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
   Bar,
   BarChart,
@@ -13,10 +13,12 @@ import { TrendingDown, TrendingUp, Wallet } from 'lucide-react';
 import { t } from '@/i18n';
 import { useAllFinance } from '@/api/finance';
 import { useContracts } from '@/api/contracts';
+import { useCompanies } from '@/api/companies';
 import { PageHeader } from '@/components/common/PageHeader';
 import { EmptyState } from '@/components/common/EmptyState';
 import { StatCard } from '@/components/common/StatCard';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Select } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatMoney, formatMoneyShort } from '@/lib/format';
 
@@ -26,8 +28,27 @@ const MONTHS = [
 ];
 
 export function Finance() {
-  const { data: finance, isLoading } = useAllFinance();
+  const { data: allFinance, isLoading } = useAllFinance();
   const { data: contracts } = useContracts();
+  const { data: companies } = useCompanies();
+  const [companyId, setCompanyId] = useState('');
+
+  const companyName = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const c of companies ?? []) m.set(c.id, c.name);
+    return m;
+  }, [companies]);
+
+  // Valyuta UZS + tanlangan tashkilot bo'yicha filtr
+  const finance = useMemo(
+    () =>
+      (allFinance ?? []).filter(
+        (f) =>
+          f.currency === 'UZS' &&
+          (!companyId || f.company_id === companyId),
+      ),
+    [allFinance, companyId],
+  );
 
   const contractMeta = useMemo(() => {
     const m = new Map<
@@ -90,6 +111,19 @@ export function Finance() {
       .slice(0, 8);
   }, [finance, contractMeta]);
 
+  const byCompany = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const f of finance) {
+      const label = f.company_id
+        ? (companyName.get(f.company_id) ?? '—')
+        : '—';
+      m.set(label, (m.get(label) ?? 0) + Number(f.profit));
+    }
+    return [...m.entries()]
+      .map(([label, profit]) => ({ label, profit }))
+      .sort((a, b) => Math.abs(b.profit) - Math.abs(a.profit));
+  }, [finance, companyName]);
+
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -104,7 +138,7 @@ export function Finance() {
     );
   }
 
-  if (!finance || finance.length === 0) {
+  if (!allFinance || allFinance.length === 0) {
     return (
       <div>
         <PageHeader title={t.finance.title} />
@@ -114,12 +148,29 @@ export function Finance() {
   }
 
   const profitPositive = totals.profit >= 0;
+  const multiCompany = (companies ?? []).length > 1;
 
   return (
     <div>
       <PageHeader
         title={t.finance.title}
         description="Faqat soʻmdagi shartnomalar boʻyicha"
+        actions={
+          (companies ?? []).length > 0 ? (
+            <Select
+              className="min-w-[200px]"
+              value={companyId}
+              onChange={(e) => setCompanyId(e.target.value)}
+              options={[
+                { value: '', label: t.finance.allCompanies },
+                ...(companies ?? []).map((c) => ({
+                  value: c.id,
+                  label: c.name,
+                })),
+              ]}
+            />
+          ) : undefined
+        }
       />
 
       <div className="mb-6 grid gap-3 sm:grid-cols-3">
@@ -158,6 +209,16 @@ export function Finance() {
             <ChartFrame data={byOrg} />
           </CardContent>
         </Card>
+        {multiCompany && !companyId && (
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle>{t.finance.byCompany}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ChartFrame data={byCompany} />
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );

@@ -24,6 +24,16 @@ export type ActivityAction =
   | 'import'
   | 'export';
 
+export interface Company {
+  id: string;
+  user_id: string;
+  name: string;
+  inn_stir: string | null;
+  note: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Organization {
   id: string;
   user_id: string;
@@ -42,6 +52,7 @@ export interface Contract {
   id: string;
   user_id: string;
   number: string;
+  company_id: string | null;
   organization_id: string | null;
   signed_date: string | null;
   subject: string | null;
@@ -155,6 +166,7 @@ export interface ActivityLog {
 export interface ContractFinance {
   contract_id: string;
   user_id: string;
+  company_id: string | null;
   our_role: OurRole;
   currency: CurrencyCode;
   contract_value: number;
