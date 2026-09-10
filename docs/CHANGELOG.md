@@ -2,6 +2,21 @@
 
 Format: [Keep a Changelog](https://keepachangelog.com/), sana — YYYY-MM-DD.
 
+## [0.3.0] — 2026-09-10
+
+### Qo'shildi
+- **PDF dan shartnoma import** (`/contracts/import`) — xarid.uzex.uz /
+  "Milliy do'kon" davlat xaridlari shartnoma PDF'ini yuklab, barcha maydonlar
+  avtomatik to'ldiriladi; foydalanuvchi ko'rib-tasdiqlab saqlaydi.
+  - `src/lib/pdf/extractText.ts` — brauzerда `pdf.js` orqali matn ajratish
+    (fayl hech qayoqqa yuborilmaydi).
+  - `src/lib/pdf/parseUzexContract.ts` — shablon-parser (anchor + regex).
+  - `src/api/importContract.ts` — company/kontragent'ni STIR bo'yicha topadi
+    yoki yaratadi, shartnoma + bajarish talabini yozadi (`source = 'uzex'`).
+  - `scripts/test-parse.ts` — parserни haqiqiy PDF'da sinash uchun.
+- "Shartnomalar" sahifasida **PDF dan import** tugmasi.
+- Bog'liqliklar: `pdfjs-dist`; dev: `tsx`.
+
 ## [0.2.0] — 2026-09-10
 
 ### Qo'shildi

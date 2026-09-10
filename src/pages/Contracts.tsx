@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FileText, Plus } from 'lucide-react';
+import { FileText, FileUp, Plus } from 'lucide-react';
 import { t } from '@/i18n';
 import type { ContractStatus } from '@/types/db';
 import { useContracts } from '@/api/contracts';
@@ -57,10 +57,19 @@ export function Contracts() {
         title={t.contract.title}
         description={`${data?.length ?? 0} ${t.contract.one.toLowerCase()}`}
         actions={
-          <Button onClick={() => navigate('/contracts/new')}>
-            <Plus className="h-4 w-4" />
-            {t.common.add}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => navigate('/contracts/import')}
+            >
+              <FileUp className="h-4 w-4" />
+              {t.import.fromPdfButton}
+            </Button>
+            <Button onClick={() => navigate('/contracts/new')}>
+              <Plus className="h-4 w-4" />
+              {t.common.add}
+            </Button>
+          </div>
         }
       />
 

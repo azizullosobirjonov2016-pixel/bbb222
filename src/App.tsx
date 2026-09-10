@@ -10,6 +10,7 @@ import { Organizations } from '@/pages/Organizations';
 import { Contracts } from '@/pages/Contracts';
 import { ContractDetail } from '@/pages/ContractDetail';
 import { ContractForm } from '@/pages/ContractForm';
+import { ContractImport } from '@/pages/ContractImport';
 import { Deliveries } from '@/pages/Deliveries';
 import { Finance } from '@/pages/Finance';
 import { Activity } from '@/pages/Activity';
@@ -40,6 +41,7 @@ export default function App() {
         <Route path="/organizations" element={<Organizations />} />
         <Route path="/contracts" element={<Contracts />} />
         <Route path="/contracts/new" element={<ContractForm />} />
+        <Route path="/contracts/import" element={<ContractImport />} />
         <Route path="/contracts/:id" element={<ContractDetail />} />
         <Route path="/contracts/:id/edit" element={<ContractForm />} />
         <Route path="/deliveries" element={<Deliveries />} />
