@@ -2,6 +2,7 @@
 -- Birja — to'liq Supabase o'rnatish (bitta fayl)
 -- supabase.com > loyihangiz > SQL Editor > New query > shu matnni
 -- to'liq joylashtiring va Run bosing. Xatosiz tugashi kerak.
+-- Qayta ishga tushirish xavfsiz (idempotent).
 -- ============================================================
 
 -- >>> supabase/migrations/0001_init.sql
@@ -413,7 +414,9 @@ create trigger trg_companies_audit
   for each row execute function public.log_activity();
 
 -- ===== contract_finance view — company_id qo'shildi =====
-create or replace view public.contract_finance
+-- CREATE OR REPLACE ustun tartibini o'zgartira olmaydi, shuning uchun avval drop.
+drop view if exists public.contract_finance;
+create view public.contract_finance
 with (security_invoker = true) as
 select
   c.id                                           as contract_id,
