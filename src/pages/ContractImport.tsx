@@ -3,9 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, FileUp, Loader2, AlertTriangle } from 'lucide-react';
 import { t } from '@/i18n';
 import { extractPdfText } from '@/lib/pdf/extractText';
-import { parseUzexContract, type ParsedContract } from '@/lib/pdf/parseUzexContract';
+import {
+  parseUzexContract,
+  type ParsedContract,
+} from '@/lib/pdf/parseUzexContract';
 import { useCompanies } from '@/api/companies';
 import { useOrganizations } from '@/api/organizations';
+import { useContracts } from '@/api/contracts';
 import { useImportContract, type ImportPayload } from '@/api/importContract';
 import { useToast } from '@/components/ui/toast';
 import { PageHeader } from '@/components/common/PageHeader';
@@ -28,6 +32,7 @@ export function ContractImport() {
   const fileRef = useRef<HTMLInputElement>(null);
   const { data: companies } = useCompanies();
   const { data: orgs } = useOrganizations();
+  const { data: existingContracts } = useContracts();
   const importMut = useImportContract();
 
   const [busy, setBusy] = useState(false);
@@ -56,8 +61,7 @@ export function ContractImport() {
     oblPrice: '0',
     oblAmount: '0',
   });
-  const set = (k: keyof typeof f, v: string) =>
-    setF((s) => ({ ...s, [k]: v }));
+  const set = (k: keyof typeof f, v: string) => setF((s) => ({ ...s, [k]: v }));
 
   const matchedCompany = useMemo(() => {
     const stir = digits(parsed?.executor.stir ?? null);
@@ -78,6 +82,19 @@ export function ContractImport() {
     try {
       const text = await extractPdfText(file);
       const p = parseUzexContract(text);
+
+      const number = p.number?.trim();
+      const duplicate = number
+        ? (existingContracts ?? []).find(
+            (c) => c.number.trim().toLowerCase() === number.toLowerCase(),
+          )
+        : undefined;
+      if (duplicate) {
+        toast(`${t.import.alreadyExists} (№ ${duplicate.number})`, 'info');
+        setFileName(null);
+        return;
+      }
+
       setParsed(p);
       const it = p.items[0];
       setF((s) => ({
@@ -88,7 +105,10 @@ export function ContractImport() {
         total_amount: String(p.total_amount ?? 0),
         currency: p.currency,
         external_ref: p.lot_number ?? '',
-        note: [p.place && `Tuzilgan joy: ${p.place}`, p.portal && `Portal: ${p.portal}`]
+        note: [
+          p.place && `Tuzilgan joy: ${p.place}`,
+          p.portal && `Portal: ${p.portal}`,
+        ]
           .filter(Boolean)
           .join(' · '),
         companySel: CREATE,
@@ -129,7 +149,12 @@ export function ContractImport() {
     }
     const company: ImportPayload['company'] =
       f.companySel === CREATE
-        ? { create: { name: f.companyName.trim(), inn_stir: f.companyStir.trim() || null } }
+        ? {
+            create: {
+              name: f.companyName.trim(),
+              inn_stir: f.companyStir.trim() || null,
+            },
+          }
         : { id: f.companySel };
     if (f.companySel === CREATE && !f.companyName.trim()) {
       toast(t.import.needCompany, 'error');
@@ -139,7 +164,12 @@ export function ContractImport() {
       !f.orgName.trim() && f.orgSel === CREATE
         ? null
         : f.orgSel === CREATE
-          ? { create: { name: f.orgName.trim(), inn_stir: f.orgStir.trim() || null } }
+          ? {
+              create: {
+                name: f.orgName.trim(),
+                inn_stir: f.orgStir.trim() || null,
+              },
+            }
           : { id: f.orgSel };
 
     const amount = Number(f.total_amount) || 0;
@@ -365,8 +395,17 @@ export function ContractImport() {
                 <Field label={t.contract.status}>
                   <Select
                     options={(
-                      ['draft', 'active', 'partially_fulfilled', 'fulfilled', 'cancelled'] as const
-                    ).map((s) => ({ value: s, label: t.contract.statusLabels[s] }))}
+                      [
+                        'draft',
+                        'active',
+                        'partially_fulfilled',
+                        'fulfilled',
+                        'cancelled',
+                      ] as const
+                    ).map((s) => ({
+                      value: s,
+                      label: t.contract.statusLabels[s],
+                    }))}
                     value={f.status}
                     onChange={(e) => set('status', e.target.value)}
                   />

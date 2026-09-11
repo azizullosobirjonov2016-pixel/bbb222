@@ -50,15 +50,15 @@ export const uz = {
     signOut: 'Chiqish',
     email: 'Email',
     password: 'Parol',
-    passwordHint: "Kamida 6 ta belgi",
+    passwordHint: 'Kamida 6 ta belgi',
     haveAccount: 'Akkountingiz bormi?',
     noAccount: "Akkountingiz yo'qmi?",
-    checkEmail: "Tasdiqlash uchun emailingizni tekshiring.",
+    checkEmail: 'Tasdiqlash uchun emailingizni tekshiring.',
     signInError: "Email yoki parol noto'g'ri.",
   },
   setup: {
     title: 'Supabase ulanmagan',
-    body: "Ilova ishlashi uchun Supabase loyihasi kerak. `.env.local` fayliga `VITE_SUPABASE_URL` va `VITE_SUPABASE_ANON_KEY` qiymatlarini yozing va sahifani yangilang.",
+    body: 'Ilova ishlashi uchun Supabase loyihasi kerak. `.env.local` fayliga `VITE_SUPABASE_URL` va `VITE_SUPABASE_ANON_KEY` qiymatlarini yozing va sahifani yangilang.',
     docs: "Yo'riqnoma: docs/DATABASE.md",
   },
   company: {
@@ -70,10 +70,12 @@ export const uz = {
     innStir: 'INN / STIR',
     note: 'Izoh',
     contractsCount: 'Shartnomalar',
-    empty: "Hali o'z tashkilotingiz qo'shilmagan. Bu — siz nomidan shartnoma tuziladigan yuridik shaxslar (4 tagacha).",
+    empty:
+      "Hali o'z tashkilotingiz qo'shilmagan. Bu — siz nomidan shartnoma tuziladigan yuridik shaxslar (4 tagacha).",
     deleteConfirm:
       "Tashkilot o'chirilsinmi? Unga bog'langan shartnomalarda \"mening tashkilotim\" bo'sh qoladi.",
-    pickFirst: "Avval \"Mening tashkilotlarim\" bo'limida o'z tashkilotingizni qo'shing.",
+    pickFirst:
+      "Avval \"Mening tashkilotlarim\" bo'limida o'z tashkilotingizni qo'shing.",
   },
   org: {
     title: 'Kontragentlar',
@@ -83,7 +85,7 @@ export const uz = {
     innStir: 'INN / STIR',
     type: 'Turi',
     typeCustomer: 'Buyurtmachi',
-    typeSupplier: "Yetkazib beruvchi",
+    typeSupplier: 'Yetkazib beruvchi',
     typeBoth: 'Ikkalasi',
     phone: 'Telefon',
     email: 'Email',
@@ -149,7 +151,7 @@ export const uz = {
     status: 'Holati',
     doneDate: 'Bajarilgan sana',
     note: 'Izoh',
-    empty: "Bajarish talablari kiritilmagan.",
+    empty: 'Bajarish talablari kiritilmagan.',
     statusLabels: {
       pending: 'Kutilmoqda',
       partial: 'Qisman',
@@ -166,7 +168,7 @@ export const uz = {
     amount: 'Summa',
     documentRef: 'Hujjat (dalolatnoma, faktura)',
     note: 'Izoh',
-    empty: "Hali topshirish qayd etilmagan.",
+    empty: 'Hali topshirish qayd etilmagan.',
     contract: 'Shartnoma',
   },
   payment: {
@@ -195,7 +197,7 @@ export const uz = {
     spent: 'Sarf',
     profit: 'Foyda',
     loss: 'Zarar',
-    outstanding: "Qoldiq (kelib tushmagan)",
+    outstanding: 'Qoldiq (kelib tushmagan)',
     paidIn: 'Kelib tushdi',
     paidOut: "To'landi",
     costs: 'Xarajatlar',
@@ -249,9 +251,10 @@ export const uz = {
   },
   import: {
     title: 'PDF dan shartnoma import',
-    subtitle: "xarid.uzex.uz / \"Milliy do'kon\" shartnoma PDF'ini yuklang — maydonlar avtomatik to'ldiriladi",
-    pick: "PDF faylni tanlang",
-    hint: "Fayl bu yerdan chiqmaydi — hammasi shu brauzerда",
+    subtitle:
+      "xarid.uzex.uz / \"Milliy do'kon\" shartnoma PDF'ini yuklang — maydonlar avtomatik to'ldiriladi",
+    pick: 'PDF faylni tanlang',
+    hint: 'Fayl bu yerdan chiqmaydi — hammasi shu brauzerда',
     reading: "O'qilmoqda...",
     parseFailed: "PDF o'qib bo'lmadi",
     notTemplate:
@@ -262,12 +265,13 @@ export const uz = {
     willCreate: "Bazada yo'q — yangi yoziladi",
     createNew: "+ Yangi yaratish (PDF'dagi ma'lumot bilan)",
     obligation: 'Bajarish talabi (PDF jadvalidan)',
-    another: "Boshqa fayl",
+    another: 'Boshqa fayl',
     save: 'Import qilish',
     done: 'Shartnoma import qilindi',
+    alreadyExists: "Bu shartnoma allaqachon mavjud — o'tkazib yuborildi",
     needNumber: 'Shartnoma raqami kerak',
-    needCompany: "\"Mening tashkilotim\" nomi kerak",
-    fromPdfButton: "PDF dan import",
+    needCompany: '"Mening tashkilotim" nomi kerak',
+    fromPdfButton: 'PDF dan import',
   },
   settings: {
     title: 'Sozlamalar',
@@ -289,7 +293,7 @@ export const uz = {
   errors: {
     notFound: 'Sahifa topilmadi',
     goHome: 'Bosh sahifaga',
-    loadFailed: "Maʼlumotni yuklab boʻlmadi.",
+    loadFailed: 'Maʼlumotni yuklab boʻlmadi.',
     retry: 'Qayta urinish',
   },
 } as const;
