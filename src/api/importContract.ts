@@ -4,8 +4,7 @@ import type { ContractStatus, CurrencyCode, OurRole } from '@/types/db';
 import { currentUserId, qk, unwrap } from './helpers';
 
 type PartyRef =
-  | { id: string }
-  | { create: { name: string; inn_stir: string | null } };
+  { id: string } | { create: { name: string; inn_stir: string | null } };
 
 export interface ImportPayload {
   company: PartyRef;
@@ -44,6 +43,7 @@ async function resolveCompany(ref: PartyRef, userId: string): Promise<string> {
       })
       .select('id')
       .single(),
+    'importContract.resolveCompany',
   ).id;
 }
 
@@ -60,6 +60,7 @@ async function resolveOrg(ref: PartyRef, userId: string): Promise<string> {
       })
       .select('id')
       .single(),
+    'importContract.resolveOrg',
   ).id;
 }
 
@@ -87,17 +88,22 @@ export function useImportContract() {
           })
           .select('id')
           .single(),
+        'importContract.createContract',
       );
 
       if (p.obligations.length) {
         unwrap(
-          await supabase.from('obligations').insert(
-            p.obligations.map((o) => ({
-              ...o,
-              user_id: userId,
-              contract_id: contract.id,
-            })),
-          ).select('id'),
+          await supabase
+            .from('obligations')
+            .insert(
+              p.obligations.map((o) => ({
+                ...o,
+                user_id: userId,
+                contract_id: contract.id,
+              })),
+            )
+            .select('id'),
+          'importContract.createObligations',
         );
       }
 

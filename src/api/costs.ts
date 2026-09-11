@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import type { Cost } from '@/types/db';
-import { currentUserId, qk, unwrap } from './helpers';
+import { CACHE_TIME, currentUserId, qk, unwrap } from './helpers';
 
 export type CostInput = Omit<
   Cost,
@@ -19,7 +19,9 @@ export function useCosts(contractId: string | undefined) {
           .select('*')
           .eq('contract_id', contractId)
           .order('date', { ascending: false }),
+        'costs.list',
       ),
+    ...CACHE_TIME,
   });
 }
 
@@ -48,6 +50,7 @@ export function useSaveCost(contractId: string) {
             .eq('id', id)
             .select()
             .single(),
+          'costs.update',
         );
       }
       const user_id = await currentUserId();
@@ -57,6 +60,7 @@ export function useSaveCost(contractId: string) {
           .insert({ ...values, contract_id: contractId, user_id })
           .select()
           .single(),
+        'costs.create',
       );
     },
     onSuccess: () => invalidate(qc, contractId),
@@ -74,6 +78,7 @@ export function useDeleteCost(contractId: string) {
           .eq('id', id)
           .select()
           .maybeSingle(),
+        'costs.delete',
       );
     },
     onSuccess: () => invalidate(qc, contractId),

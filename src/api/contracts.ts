@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import type { Contract } from '@/types/db';
-import { currentUserId, qk, unwrap } from './helpers';
+import { CACHE_TIME, currentUserId, qk, unwrap } from './helpers';
 
 export type ContractInput = Omit<
   Contract,
@@ -26,7 +26,9 @@ export function useContracts() {
           .select(SELECT)
           .order('signed_date', { ascending: false, nullsFirst: false })
           .order('created_at', { ascending: false }),
+        'contracts.list',
       ) as ContractRow[],
+    ...CACHE_TIME,
   });
 }
 
@@ -36,12 +38,10 @@ export function useContract(id: string | undefined) {
     enabled: !!id,
     queryFn: async (): Promise<ContractRow> =>
       unwrap(
-        await supabase
-          .from('contracts')
-          .select(SELECT)
-          .eq('id', id)
-          .single(),
+        await supabase.from('contracts').select(SELECT).eq('id', id).single(),
+        'contracts.get',
       ) as ContractRow,
+    ...CACHE_TIME,
   });
 }
 
@@ -63,6 +63,7 @@ export function useSaveContract() {
             .eq('id', id)
             .select()
             .single(),
+          'contracts.update',
         );
       }
       const user_id = await currentUserId();
@@ -72,6 +73,7 @@ export function useSaveContract() {
           .insert({ ...values, user_id })
           .select()
           .single(),
+        'contracts.create',
       );
     },
     onSuccess: (row) => {
@@ -94,6 +96,7 @@ export function useDeleteContract() {
           .eq('id', id)
           .select()
           .maybeSingle(),
+        'contracts.delete',
       );
     },
     onSuccess: () => {

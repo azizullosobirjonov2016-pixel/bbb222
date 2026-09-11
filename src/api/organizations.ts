@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import type { Organization } from '@/types/db';
-import { currentUserId, qk, unwrap } from './helpers';
+import { CACHE_TIME, currentUserId, qk, unwrap } from './helpers';
 
 export type OrgInput = Omit<
   Organization,
@@ -21,23 +21,23 @@ export function useOrganizations() {
           .from('organizations')
           .select('*')
           .order('name', { ascending: true }),
+        'organizations.list',
       );
       const counts = unwrap(
         await supabase.from('contracts').select('organization_id'),
+        'organizations.list.counts',
       );
       const map = new Map<string, number>();
       for (const row of counts as { organization_id: string | null }[]) {
         if (row.organization_id)
-          map.set(
-            row.organization_id,
-            (map.get(row.organization_id) ?? 0) + 1,
-          );
+          map.set(row.organization_id, (map.get(row.organization_id) ?? 0) + 1);
       }
       return (orgs as Organization[]).map((o) => ({
         ...o,
         contracts_count: map.get(o.id) ?? 0,
       }));
     },
+    ...CACHE_TIME,
   });
 }
 
@@ -48,7 +48,9 @@ export function useOrganization(id: string | undefined) {
     queryFn: async (): Promise<Organization> =>
       unwrap(
         await supabase.from('organizations').select('*').eq('id', id).single(),
+        'organizations.get',
       ),
+    ...CACHE_TIME,
   });
 }
 
@@ -70,6 +72,7 @@ export function useSaveOrganization() {
             .eq('id', id)
             .select()
             .single(),
+          'organizations.update',
         );
       }
       const user_id = await currentUserId();
@@ -79,6 +82,7 @@ export function useSaveOrganization() {
           .insert({ ...values, user_id })
           .select()
           .single(),
+        'organizations.create',
       );
     },
     onSuccess: () => {
@@ -98,6 +102,7 @@ export function useDeleteOrganization() {
           .eq('id', id)
           .select()
           .maybeSingle(),
+        'organizations.delete',
       );
     },
     onSuccess: () => {

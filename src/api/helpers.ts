@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import { AppError, getErrorMessage, logError } from '@/lib/errors';
 
 /** Joriy foydalanuvchi id sini qaytaradi (kirmagan bo'lsa xato) */
 export async function currentUserId(): Promise<string> {
@@ -8,15 +9,37 @@ export async function currentUserId(): Promise<string> {
   return id;
 }
 
-/** Supabase javobidagi xatoni JS Error ga aylantiradi */
-export function unwrap<T>(res: { data: T | null; error: unknown }): T {
+/**
+ * Supabase javobidagi xatoni AppError ga aylantiradi
+ * @param res Supabase response {data, error}
+ * @param context Optional context for logging
+ * @throws AppError if res.error exists
+ */
+export function unwrap<T>(
+  res: { data: T | null; error: unknown },
+  context?: string,
+): T {
   if (res.error) {
-    const msg =
-      (res.error as { message?: string }).message ?? 'Nomaʼlum xatolik';
-    throw new Error(msg);
+    const message = getErrorMessage(res.error);
+    if (context) {
+      logError(context, res.error);
+    }
+    throw new AppError('API_ERROR', message, res.error);
   }
   return res.data as T;
 }
+
+/** Standart query keshlash muddati (ko'p ma'lumotlar uchun) */
+export const CACHE_TIME = {
+  staleTime: 5 * 60 * 1000,
+  gcTime: 10 * 60 * 1000,
+} as const;
+
+/** Tez-tez o'zgaruvchi ma'lumotlar (masalan, activity log) uchun qisqaroq kesh */
+export const SHORT_CACHE_TIME = {
+  staleTime: 2 * 60 * 1000,
+  gcTime: 5 * 60 * 1000,
+} as const;
 
 /** Ilova bo'ylab bir xil query kalitlari */
 export const qk = {
@@ -26,7 +49,9 @@ export const qk = {
   contract: (id: string) => ['contracts', id] as const,
   obligations: (contractId: string) => ['obligations', contractId] as const,
   deliveries: (contractId?: string) =>
-    contractId ? (['deliveries', contractId] as const) : (['deliveries'] as const),
+    contractId
+      ? (['deliveries', contractId] as const)
+      : (['deliveries'] as const),
   payments: (contractId: string) => ['payments', contractId] as const,
   costs: (contractId: string) => ['costs', contractId] as const,
   finance: ['contract_finance'] as const,

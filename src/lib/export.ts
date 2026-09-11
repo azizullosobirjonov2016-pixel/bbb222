@@ -34,7 +34,11 @@ export async function exportAllJson() {
   }
   download(
     `birja-export-${stamp()}.json`,
-    JSON.stringify({ exported_at: new Date().toISOString(), data: dump }, null, 2),
+    JSON.stringify(
+      { exported_at: new Date().toISOString(), data: dump },
+      null,
+      2,
+    ),
     'application/json',
   );
 }
@@ -58,7 +62,20 @@ export async function exportContractsCsv() {
     .select('*, organization:organizations(name)')
     .order('signed_date', { ascending: false });
   if (error) throw new Error(error.message);
-  const flat = (data ?? []).map((c: Record<string, any>) => ({
+  interface ContractExportRow {
+    number: string;
+    organization: { name: string } | null;
+    signed_date: string | null;
+    subject: string | null;
+    our_role: string;
+    total_amount: number;
+    currency: string;
+    status: string;
+    deadline: string | null;
+    source: string;
+    external_ref: string | null;
+  }
+  const flat = ((data ?? []) as ContractExportRow[]).map((c) => ({
     number: c.number,
     organization: c.organization?.name ?? '',
     signed_date: c.signed_date ?? '',

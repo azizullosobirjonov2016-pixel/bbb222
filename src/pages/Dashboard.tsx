@@ -22,8 +22,16 @@ import { formatMoney, daysUntil } from '@/lib/format';
 
 export function Dashboard() {
   const navigate = useNavigate();
-  const { data: contracts, isLoading: cLoading } = useContracts();
-  const { data: finance, isLoading: fLoading } = useAllFinance();
+  const {
+    data: contracts,
+    isLoading: cLoading,
+    isError: cError,
+  } = useContracts();
+  const {
+    data: finance,
+    isLoading: fLoading,
+    isError: fError,
+  } = useAllFinance();
   const { data: activity } = useActivity({ limit: 8 });
 
   const totalProfit = useMemo(
@@ -65,7 +73,13 @@ export function Dashboard() {
         }
       />
 
-      {loading ? (
+      {cError || fError ? (
+        <EmptyState
+          icon={AlertTriangle}
+          title={t.common.error}
+          description="Ma'lumot yuklanmadi. Sahifani qayta yuklang."
+        />
+      ) : loading ? (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
             <Skeleton key={i} className="h-24" />

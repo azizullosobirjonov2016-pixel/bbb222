@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import type { Company } from '@/types/db';
-import { currentUserId, unwrap } from './helpers';
+import { CACHE_TIME, currentUserId, unwrap } from './helpers';
 
 const KEY = ['companies'] as const;
 
@@ -23,9 +23,11 @@ export function useCompanies() {
           .from('companies')
           .select('*')
           .order('name', { ascending: true }),
+        'companies.list',
       ) as Company[];
       const counts = unwrap(
         await supabase.from('contracts').select('company_id'),
+        'companies.list.counts',
       ) as { company_id: string | null }[];
       const map = new Map<string, number>();
       for (const r of counts) {
@@ -37,6 +39,7 @@ export function useCompanies() {
         contracts_count: map.get(c.id) ?? 0,
       }));
     },
+    ...CACHE_TIME,
   });
 }
 
@@ -58,6 +61,7 @@ export function useSaveCompany() {
             .eq('id', id)
             .select()
             .single(),
+          'companies.update',
         );
       }
       const user_id = await currentUserId();
@@ -67,6 +71,7 @@ export function useSaveCompany() {
           .insert({ ...values, user_id })
           .select()
           .single(),
+        'companies.create',
       );
     },
     onSuccess: () => {
@@ -87,6 +92,7 @@ export function useDeleteCompany() {
           .eq('id', id)
           .select()
           .maybeSingle(),
+        'companies.delete',
       );
     },
     onSuccess: () => {

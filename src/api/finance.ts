@@ -1,14 +1,18 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import type { ContractFinance } from '@/types/db';
-import { qk, unwrap } from './helpers';
+import { CACHE_TIME, qk, unwrap } from './helpers';
 
 /** Barcha shartnomalar bo'yicha moliyaviy ko'rsatkichlar (view) */
 export function useAllFinance() {
   return useQuery({
     queryKey: qk.finance,
     queryFn: async (): Promise<ContractFinance[]> =>
-      unwrap(await supabase.from('contract_finance').select('*')),
+      unwrap(
+        await supabase.from('contract_finance').select('*'),
+        'finance.list',
+      ),
+    ...CACHE_TIME,
   });
 }
 
@@ -25,5 +29,6 @@ export function useContractFinance(id: string | undefined) {
       if (error) throw new Error(error.message);
       return data;
     },
+    ...CACHE_TIME,
   });
 }

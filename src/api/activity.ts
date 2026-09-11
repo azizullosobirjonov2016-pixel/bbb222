@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import type { ActivityLog } from '@/types/db';
-import { qk, unwrap } from './helpers';
+import { qk, SHORT_CACHE_TIME, unwrap } from './helpers';
 
 export function useActivity(opts?: {
   entityType?: string;
@@ -21,7 +21,8 @@ export function useActivity(opts?: {
         .limit(opts?.limit ?? 100);
       if (opts?.entityType) q = q.eq('entity_type', opts.entityType);
       if (opts?.contractId) q = q.eq('contract_id', opts.contractId);
-      return unwrap(await q);
+      return unwrap(await q, 'activity.list');
     },
+    ...SHORT_CACHE_TIME,
   });
 }

@@ -1,0 +1,25 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo "🔍 Running pre-push checks..."
+echo "   Checking TypeScript types..."
+
+# Run type checking
+npm run typecheck
+
+if [ $? -ne 0 ]; then
+  echo "❌ Type checking failed"
+  exit 1
+fi
+
+echo "   Running full linter..."
+
+# Run lint
+npm run lint
+
+if [ $? -ne 0 ]; then
+  echo "❌ Linting failed"
+  exit 1
+fi
+
+echo "✅ Pre-push checks passed!"

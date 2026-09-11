@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import type { Delivery } from '@/types/db';
-import { currentUserId, qk, unwrap } from './helpers';
+import { CACHE_TIME, currentUserId, qk, unwrap } from './helpers';
 
 export type DeliveryInput = Omit<
   Delivery,
@@ -29,8 +29,9 @@ export function useDeliveries(contractId?: string) {
         .select(selectWithContract)
         .order('date', { ascending: false });
       if (contractId) q = q.eq('contract_id', contractId);
-      return unwrap(await q) as DeliveryRow[];
+      return unwrap(await q, 'deliveries.list') as DeliveryRow[];
     },
+    ...CACHE_TIME,
   });
 }
 
@@ -60,6 +61,7 @@ export function useSaveDelivery(contractId: string) {
             .eq('id', id)
             .select()
             .single(),
+          'deliveries.update',
         );
       }
       const user_id = await currentUserId();
@@ -69,6 +71,7 @@ export function useSaveDelivery(contractId: string) {
           .insert({ ...values, contract_id: contractId, user_id })
           .select()
           .single(),
+        'deliveries.create',
       );
     },
     onSuccess: () => invalidate(qc, contractId),
@@ -86,6 +89,7 @@ export function useDeleteDelivery(contractId: string) {
           .eq('id', id)
           .select()
           .maybeSingle(),
+        'deliveries.delete',
       );
     },
     onSuccess: () => invalidate(qc, contractId),

@@ -14,3 +14,7 @@ coverage
 supabase/.temp
 
 *.tsbuildinfo
+
+# Windows Explorer folder-customization files (created by Explorer when
+# browsing the Google Drive-mounted copy of this repo)
+desktop.ini

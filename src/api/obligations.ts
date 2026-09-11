@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import type { Obligation } from '@/types/db';
-import { currentUserId, qk, unwrap } from './helpers';
+import { CACHE_TIME, currentUserId, qk, unwrap } from './helpers';
 
 export type ObligationInput = Omit<
   Obligation,
@@ -20,7 +20,9 @@ export function useObligations(contractId: string | undefined) {
           .eq('contract_id', contractId)
           .order('due_date', { ascending: true, nullsFirst: false })
           .order('created_at', { ascending: true }),
+        'obligations.list',
       ),
+    ...CACHE_TIME,
   });
 }
 
@@ -48,6 +50,7 @@ export function useSaveObligation(contractId: string) {
             .eq('id', id)
             .select()
             .single(),
+          'obligations.update',
         );
       }
       const user_id = await currentUserId();
@@ -57,6 +60,7 @@ export function useSaveObligation(contractId: string) {
           .insert({ ...values, contract_id: contractId, user_id })
           .select()
           .single(),
+        'obligations.create',
       );
     },
     onSuccess: () => invalidate(qc, contractId),
@@ -74,6 +78,7 @@ export function useDeleteObligation(contractId: string) {
           .eq('id', id)
           .select()
           .maybeSingle(),
+        'obligations.delete',
       );
     },
     onSuccess: () => invalidate(qc, contractId),

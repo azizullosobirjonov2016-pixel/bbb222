@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FileText, FileUp, Plus } from 'lucide-react';
+import { AlertTriangle, FileText, FileUp, Plus } from 'lucide-react';
 import { t } from '@/i18n';
 import type { ContractStatus } from '@/types/db';
 import { useContracts } from '@/api/contracts';
@@ -19,7 +19,13 @@ import { cn } from '@/lib/utils';
 const statusFilterOptions = [
   { value: '', label: t.common.all },
   ...(
-    ['draft', 'active', 'partially_fulfilled', 'fulfilled', 'cancelled'] as const
+    [
+      'draft',
+      'active',
+      'partially_fulfilled',
+      'fulfilled',
+      'cancelled',
+    ] as const
   ).map((s) => ({ value: s, label: t.contract.statusLabels[s] })),
 ];
 
@@ -95,7 +101,11 @@ export function Contracts() {
           ))}
         </div>
       ) : isError ? (
-        <EmptyState title={t.errors.loadFailed} />
+        <EmptyState
+          icon={AlertTriangle}
+          title={t.common.error}
+          description="Shartnomalarni yuklashda xatolik yuz berdi. Sahifani qayta yuklang."
+        />
       ) : filtered.length === 0 ? (
         <EmptyState
           icon={FileText}

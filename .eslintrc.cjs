@@ -16,6 +16,16 @@ module.exports = {
       'warn',
       { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
     ],
-    '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/no-explicit-any': 'warn',
+    '@typescript-eslint/no-var-requires': 'warn',
+    'no-console': [
+      'warn',
+      {
+        allow: ['warn', 'error', 'debug'],
+      },
+    ],
+    'react-hooks/exhaustive-deps': 'warn',
+    'no-var': 'error',
+    'prefer-const': 'error',
   },
 };

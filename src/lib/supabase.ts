@@ -1,7 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
+import { getOptionalEnv } from './env';
 
-const url = import.meta.env.VITE_SUPABASE_URL ?? '';
-const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY ?? '';
+const url = getOptionalEnv('VITE_SUPABASE_URL');
+const anonKey = getOptionalEnv('VITE_SUPABASE_ANON_KEY');
 
 /** Supabase kalitlari haqiqiy qiymatga ega ekanini tekshiradi */
 export const isSupabaseConfigured =
@@ -23,4 +24,4 @@ export const supabase = createClient(
   },
 );
 
-export const UZEX_FETCH_URL = import.meta.env.VITE_UZEX_FETCH_URL ?? '';
+export const UZEX_FETCH_URL = getOptionalEnv('VITE_UZEX_FETCH_URL');
