@@ -60,5 +60,6 @@ export const qk = {
   financeOne: (id: string) => ['contract_finance', id] as const,
   activity: (filter?: string) =>
     filter ? (['activity', filter] as const) : (['activity'] as const),
+  cashbox: ['cashbox'] as const,
   templates: ['templates'] as const,
 };

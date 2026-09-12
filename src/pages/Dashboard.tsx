@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   AlertTriangle,
+  Banknote,
   CalendarClock,
   FileText,
   Plus,
@@ -10,6 +11,7 @@ import {
 import { t } from '@/i18n';
 import { useContracts } from '@/api/contracts';
 import { useAllFinance } from '@/api/finance';
+import { useCashbox } from '@/api/cashbox';
 import { useActivity } from '@/api/activity';
 import { PageHeader } from '@/components/common/PageHeader';
 import { StatCard } from '@/components/common/StatCard';
@@ -32,7 +34,11 @@ export function Dashboard() {
     isLoading: fLoading,
     isError: fError,
   } = useAllFinance();
+  const { data: cashbox } = useCashbox();
   const { data: activity } = useActivity({ limit: 8 });
+
+  const cashboxBalance =
+    cashbox?.find((b) => b.currency === 'UZS')?.balance ?? 0;
 
   const totalProfit = useMemo(
     () =>
@@ -92,6 +98,12 @@ export function Dashboard() {
             value={formatMoney(totalProfit)}
             tone={totalProfit >= 0 ? 'success' : 'destructive'}
             icon={Wallet}
+          />
+          <StatCard
+            label={t.cashbox.balance}
+            value={formatMoney(cashboxBalance)}
+            tone={cashboxBalance >= 0 ? 'success' : 'destructive'}
+            icon={Banknote}
           />
           <StatCard
             label={t.dashboard.activeContracts}

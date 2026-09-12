@@ -5,6 +5,7 @@ import {
   FileText,
   PackageCheck,
   Wallet,
+  Banknote,
   History,
   Settings,
   type LucideIcon,
@@ -28,6 +29,7 @@ export const navItems: NavItem[] = [
     primary: true,
   },
   { to: '/finance', label: t.nav.finance, icon: Wallet, primary: true },
+  { to: '/cashbox', label: t.nav.cashbox, icon: Banknote },
   {
     to: '/companies',
     label: t.nav.companies,

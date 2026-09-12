@@ -14,6 +14,7 @@ export const uz = {
     contracts: 'Shartnomalar',
     deliveries: 'Topshirishlar',
     finance: 'Moliya',
+    cashbox: 'Kassa',
     activity: 'Harakatlar',
     settings: 'Sozlamalar',
   },
@@ -227,6 +228,17 @@ export const uz = {
     byMonth: 'Oylar kesimida',
     netProfit: 'Sof foyda',
     profitMargin: 'Rentabellik',
+  },
+  cashbox: {
+    title: 'Kassadagi pul mablagʻi',
+    subtitle:
+      "Barcha shartnomalar bo'yicha: kirim to'lovlar − chiqim to'lovlar − to'langan xarajatlar − foyda oluvchilarga berilgan pul",
+    balance: 'Kassada qoldiq',
+    paidIn: "Kirim to'lovlar",
+    paidOut: "Chiqim to'lovlar",
+    paidCosts: "To'langan xarajatlar",
+    beneficiaryPayouts: 'Foyda oluvchilarga berilgan',
+    empty: "Hali hech qanday to'lov yoki xarajat kiritilmagan.",
   },
   dashboard: {
     title: 'Boshqaruv paneli',
