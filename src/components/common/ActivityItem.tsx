@@ -21,8 +21,7 @@ const iconFor: Record<ActivityAction, typeof FilePlus2> = {
 
 export function ActivityItem({ item }: { item: ActivityLog }) {
   const Icon = iconFor[item.action] ?? FilePenLine;
-  const entity =
-    t.activity.entityLabels[item.entity_type] ?? item.entity_type;
+  const entity = t.activity.entityLabels[item.entity_type] ?? item.entity_type;
   const action = t.activity.actionLabels[item.action] ?? item.action;
 
   return (
@@ -42,6 +41,7 @@ export function ActivityItem({ item }: { item: ActivityLog }) {
           title={formatDateTime(item.created_at)}
         >
           {timeAgo(item.created_at)}
+          {item.user_email ? ` · ${item.user_email}` : ''}
         </p>
       </div>
     </div>

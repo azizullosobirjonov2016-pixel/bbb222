@@ -15,8 +15,15 @@ import { useObligations, useDeleteObligation } from '@/api/obligations';
 import { useDeliveries, useDeleteDelivery } from '@/api/deliveries';
 import { usePayments, useDeletePayment } from '@/api/payments';
 import { useCosts, useDeleteCost, useToggleCostPaid } from '@/api/costs';
+import { useBeneficiaries, useDeleteBeneficiary } from '@/api/beneficiaries';
 import { useActivity } from '@/api/activity';
-import type { Cost, Delivery, Obligation, Payment } from '@/types/db';
+import type {
+  BeneficiaryPayout,
+  Cost,
+  Delivery,
+  Obligation,
+  Payment,
+} from '@/types/db';
 import { useToast } from '@/components/ui/toast';
 import { PageHeader } from '@/components/common/PageHeader';
 import { EmptyState } from '@/components/common/EmptyState';
@@ -32,6 +39,7 @@ import { DeliveryForm } from '@/components/forms/DeliveryForm';
 import { DeliveryImportWizard } from '@/components/forms/DeliveryImportWizard';
 import { PaymentForm } from '@/components/forms/PaymentForm';
 import { CostForm } from '@/components/forms/CostForm';
+import { BeneficiaryForm } from '@/components/forms/BeneficiaryForm';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -41,7 +49,13 @@ import { formatDate, formatMoney, daysUntil } from '@/lib/format';
 import { ActivityItem } from '@/components/common/ActivityItem';
 
 type TabKey =
-  'obligations' | 'deliveries' | 'payments' | 'costs' | 'finance' | 'activity';
+  | 'obligations'
+  | 'deliveries'
+  | 'payments'
+  | 'costs'
+  | 'beneficiaries'
+  | 'finance'
+  | 'activity';
 
 export function ContractDetail() {
   const { id = '' } = useParams();
@@ -54,6 +68,7 @@ export function ContractDetail() {
   const { data: deliveries = [] } = useDeliveries(id);
   const { data: payments = [] } = usePayments(id);
   const { data: costs = [] } = useCosts(id);
+  const { data: beneficiaries = [] } = useBeneficiaries(id);
   const { data: activity = [] } = useActivity({ contractId: id, limit: 50 });
 
   const delContract = useDeleteContract();
@@ -62,6 +77,7 @@ export function ContractDetail() {
   const delPayment = useDeletePayment(id);
   const delCost = useDeleteCost(id);
   const toggleCostPaid = useToggleCostPaid(id);
+  const delBeneficiary = useDeleteBeneficiary(id);
 
   const [tab, setTab] = useState<TabKey>('obligations');
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -85,9 +101,13 @@ export function ContractDetail() {
       row: null,
     },
   );
+  const [beneficiaryForm, setBeneficiaryForm] = useState<{
+    open: boolean;
+    row: BeneficiaryPayout | null;
+  }>({ open: false, row: null });
 
   const [rowDelete, setRowDelete] = useState<{
-    kind: 'obligation' | 'delivery' | 'payment' | 'cost';
+    kind: 'obligation' | 'delivery' | 'payment' | 'cost' | 'beneficiary';
     id: string;
   } | null>(null);
 
@@ -122,6 +142,8 @@ export function ContractDetail() {
       delPayment.mutate(rowDelete.id, { onSuccess: done, onError: err });
     if (rowDelete.kind === 'cost')
       delCost.mutate(rowDelete.id, { onSuccess: done, onError: err });
+    if (rowDelete.kind === 'beneficiary')
+      delBeneficiary.mutate(rowDelete.id, { onSuccess: done, onError: err });
   };
 
   const tabs: { value: TabKey; label: string; badge?: number }[] = [
@@ -141,6 +163,11 @@ export function ContractDetail() {
       badge: payments.length,
     },
     { value: 'costs', label: t.contract.tabs.costs, badge: costs.length },
+    {
+      value: 'beneficiaries',
+      label: t.contract.tabs.beneficiaries,
+      badge: beneficiaries.length,
+    },
     { value: 'finance', label: t.contract.tabs.finance },
     { value: 'activity', label: t.contract.tabs.activity },
   ];
@@ -405,6 +432,34 @@ export function ContractDetail() {
         </Section>
       )}
 
+      {tab === 'beneficiaries' && (
+        <Section
+          onAdd={() => setBeneficiaryForm({ open: true, row: null })}
+          empty={beneficiaries.length === 0}
+          emptyText={t.beneficiary.empty}
+        >
+          {beneficiaries.map((b) => (
+            <ListRow
+              key={b.id}
+              onEdit={() => setBeneficiaryForm({ open: true, row: b })}
+              onDelete={() => setRowDelete({ kind: 'beneficiary', id: b.id })}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-sm font-medium">{b.name}</span>
+                <span className="tabular-nums text-sm font-semibold">
+                  {formatMoney(b.amount, b.currency)}
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {formatDate(b.date)}
+                {b.phone ? ` · ${b.phone}` : ''}
+                {b.note ? ` · ${b.note}` : ''}
+              </p>
+            </ListRow>
+          ))}
+        </Section>
+      )}
+
       {tab === 'finance' && <FinancePanel finance={finance} currency={cur} />}
 
       {tab === 'activity' && (
@@ -451,6 +506,13 @@ export function ContractDetail() {
         defaultCurrency={cur}
         cost={costForm.row}
       />
+      <BeneficiaryForm
+        open={beneficiaryForm.open}
+        onClose={() => setBeneficiaryForm({ open: false, row: null })}
+        contractId={id}
+        defaultCurrency={cur}
+        beneficiary={beneficiaryForm.row}
+      />
 
       <ConfirmDialog
         open={!!rowDelete}
@@ -459,7 +521,8 @@ export function ContractDetail() {
           delObligation.isPending ||
           delDelivery.isPending ||
           delPayment.isPending ||
-          delCost.isPending
+          delCost.isPending ||
+          delBeneficiary.isPending
         }
         onCancel={() => setRowDelete(null)}
         onConfirm={runRowDelete}

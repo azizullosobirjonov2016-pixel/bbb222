@@ -118,6 +118,19 @@ export interface Cost {
   created_at: string;
 }
 
+export interface BeneficiaryPayout {
+  id: string;
+  user_id: string;
+  contract_id: string;
+  name: string;
+  phone: string | null;
+  amount: number;
+  currency: CurrencyCode;
+  date: string;
+  note: string | null;
+  created_at: string;
+}
+
 export interface Template {
   id: string;
   user_id: string;
@@ -148,6 +161,7 @@ export interface UzexLot {
 export interface ActivityLog {
   id: number;
   user_id: string;
+  user_email: string | null;
   entity_type: string;
   entity_id: string | null;
   action: ActivityAction;

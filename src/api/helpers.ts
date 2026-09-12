@@ -54,6 +54,8 @@ export const qk = {
       : (['deliveries'] as const),
   payments: (contractId: string) => ['payments', contractId] as const,
   costs: (contractId: string) => ['costs', contractId] as const,
+  beneficiaries: (contractId: string) =>
+    ['beneficiary_payouts', contractId] as const,
   finance: ['contract_finance'] as const,
   financeOne: (id: string) => ['contract_finance', id] as const,
   activity: (filter?: string) =>
