@@ -1,15 +1,28 @@
+import { useState } from 'react';
 import { Wallet, TrendingUp, TrendingDown, Users } from 'lucide-react';
 import { t } from '@/i18n';
 import { useCashbox } from '@/api/cashbox';
 import { PageHeader } from '@/components/common/PageHeader';
 import { EmptyState } from '@/components/common/EmptyState';
 import { StatCard } from '@/components/common/StatCard';
+import { DateRangeFilter } from '@/components/common/DateRangeFilter';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatMoney } from '@/lib/format';
 
 export function Cashbox() {
-  const { data, isLoading, isError } = useCashbox();
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+  const { data, isLoading, isError } = useCashbox(dateFrom, dateTo);
+
+  const filterBar = (
+    <DateRangeFilter
+      from={dateFrom}
+      to={dateTo}
+      onFromChange={setDateFrom}
+      onToChange={setDateTo}
+    />
+  );
 
   if (isLoading) {
     return (
@@ -30,6 +43,8 @@ export function Cashbox() {
   return (
     <div>
       <PageHeader title={t.cashbox.title} description={t.cashbox.subtitle} />
+
+      <div className="mb-4">{filterBar}</div>
 
       {!hasAny ? (
         <EmptyState icon={Wallet} title={t.cashbox.empty} />

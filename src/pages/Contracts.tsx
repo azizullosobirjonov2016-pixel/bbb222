@@ -8,6 +8,10 @@ import { useAllFinance } from '@/api/finance';
 import { PageHeader } from '@/components/common/PageHeader';
 import { EmptyState } from '@/components/common/EmptyState';
 import { ContractStatusBadge } from '@/components/common/StatusBadge';
+import {
+  DateRangeFilter,
+  inDateRange,
+} from '@/components/common/DateRangeFilter';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
@@ -35,6 +39,8 @@ export function Contracts() {
   const navigate = useNavigate();
   const [q, setQ] = useState('');
   const [status, setStatus] = useState<ContractStatus | ''>('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
 
   const profitByContract = useMemo(() => {
     const m = new Map<string, number>();
@@ -46,6 +52,9 @@ export function Contracts() {
     const s = q.trim().toLowerCase();
     return (data ?? []).filter((c) => {
       if (status && c.status !== status) return false;
+      if (c.signed_date && !inDateRange(c.signed_date, dateFrom, dateTo))
+        return false;
+      if (!c.signed_date && (dateFrom || dateTo)) return false;
       if (!s) return true;
       return (
         c.number.toLowerCase().includes(s) ||
@@ -55,7 +64,7 @@ export function Contracts() {
         (c.external_ref ?? '').toLowerCase().includes(s)
       );
     });
-  }, [data, q, status]);
+  }, [data, q, status, dateFrom, dateTo]);
 
   return (
     <div>
@@ -91,6 +100,12 @@ export function Contracts() {
           options={statusFilterOptions}
           value={status}
           onChange={(e) => setStatus(e.target.value as ContractStatus | '')}
+        />
+        <DateRangeFilter
+          from={dateFrom}
+          to={dateTo}
+          onFromChange={setDateFrom}
+          onToChange={setDateTo}
         />
       </div>
 

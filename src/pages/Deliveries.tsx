@@ -5,6 +5,10 @@ import { t } from '@/i18n';
 import { useDeliveries } from '@/api/deliveries';
 import { PageHeader } from '@/components/common/PageHeader';
 import { EmptyState } from '@/components/common/EmptyState';
+import {
+  DateRangeFilter,
+  inDateRange,
+} from '@/components/common/DateRangeFilter';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -14,17 +18,21 @@ import type { CurrencyCode } from '@/types/db';
 export function Deliveries() {
   const { data, isLoading, isError } = useDeliveries();
   const [q, setQ] = useState('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
 
   const filtered = useMemo(() => {
     const s = q.trim().toLowerCase();
-    if (!s) return data ?? [];
-    return (data ?? []).filter(
-      (d) =>
+    return (data ?? []).filter((d) => {
+      if (!inDateRange(d.date, dateFrom, dateTo)) return false;
+      if (!s) return true;
+      return (
         (d.contract?.number ?? '').toLowerCase().includes(s) ||
         (d.contract?.organization?.name ?? '').toLowerCase().includes(s) ||
-        (d.document_ref ?? '').toLowerCase().includes(s),
-    );
-  }, [data, q]);
+        (d.document_ref ?? '').toLowerCase().includes(s)
+      );
+    });
+  }, [data, q, dateFrom, dateTo]);
 
   const total = useMemo(() => {
     const m = new Map<string, number>();
@@ -46,11 +54,18 @@ export function Deliveries() {
         }
       />
 
-      <div className="mb-4 max-w-sm">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row">
         <Input
+          className="sm:max-w-xs"
           placeholder={t.common.search}
           value={q}
           onChange={(e) => setQ(e.target.value)}
+        />
+        <DateRangeFilter
+          from={dateFrom}
+          to={dateTo}
+          onFromChange={setDateFrom}
+          onToChange={setDateTo}
         />
       </div>
 

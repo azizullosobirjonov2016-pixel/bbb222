@@ -17,14 +17,28 @@ import { useCompanies } from '@/api/companies';
 import { PageHeader } from '@/components/common/PageHeader';
 import { EmptyState } from '@/components/common/EmptyState';
 import { StatCard } from '@/components/common/StatCard';
+import {
+  DateRangeFilter,
+  inDateRange,
+} from '@/components/common/DateRangeFilter';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Select } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatMoney, formatMoneyShort } from '@/lib/format';
 
 const MONTHS = [
-  'Yan', 'Fev', 'Mar', 'Apr', 'May', 'Iyn',
-  'Iyl', 'Avg', 'Sen', 'Okt', 'Noy', 'Dek',
+  'Yan',
+  'Fev',
+  'Mar',
+  'Apr',
+  'May',
+  'Iyn',
+  'Iyl',
+  'Avg',
+  'Sen',
+  'Okt',
+  'Noy',
+  'Dek',
 ];
 
 export function Finance() {
@@ -32,6 +46,8 @@ export function Finance() {
   const { data: contracts } = useContracts();
   const { data: companies } = useCompanies();
   const [companyId, setCompanyId] = useState('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
 
   const companyName = useMemo(() => {
     const m = new Map<string, string>();
@@ -39,21 +55,10 @@ export function Finance() {
     return m;
   }, [companies]);
 
-  // Valyuta UZS + tanlangan tashkilot bo'yicha filtr
-  const finance = useMemo(
-    () =>
-      (allFinance ?? []).filter(
-        (f) =>
-          f.currency === 'UZS' &&
-          (!companyId || f.company_id === companyId),
-      ),
-    [allFinance, companyId],
-  );
-
   const contractMeta = useMemo(() => {
     const m = new Map<
       string,
-      { org: string; month: string; status: string }
+      { org: string; month: string; status: string; signedDate: string | null }
     >();
     for (const c of contracts ?? []) {
       const d = c.signed_date ? new Date(c.signed_date) : null;
@@ -63,10 +68,26 @@ export function Finance() {
           ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
           : '—',
         status: c.status,
+        signedDate: c.signed_date,
       });
     }
     return m;
   }, [contracts]);
+
+  // Valyuta UZS + tanlangan tashkilot + sana oralig'i bo'yicha filtr
+  const finance = useMemo(
+    () =>
+      (allFinance ?? []).filter((f) => {
+        if (f.currency !== 'UZS') return false;
+        if (companyId && f.company_id !== companyId) return false;
+        const signedDate = contractMeta.get(f.contract_id)?.signedDate;
+        if (signedDate && !inDateRange(signedDate, dateFrom, dateTo))
+          return false;
+        if (!signedDate && (dateFrom || dateTo)) return false;
+        return true;
+      }),
+    [allFinance, companyId, dateFrom, dateTo, contractMeta],
+  );
 
   const totals = useMemo(() => {
     let revenue = 0;
@@ -103,7 +124,10 @@ export function Finance() {
     for (const f of finance ?? []) {
       if (f.currency !== 'UZS') continue;
       const meta = contractMeta.get(f.contract_id);
-      m.set(meta?.org ?? '—', (m.get(meta?.org ?? '—') ?? 0) + Number(f.profit));
+      m.set(
+        meta?.org ?? '—',
+        (m.get(meta?.org ?? '—') ?? 0) + Number(f.profit),
+      );
     }
     return [...m.entries()]
       .map(([label, profit]) => ({ label, profit }))
@@ -114,9 +138,7 @@ export function Finance() {
   const byCompany = useMemo(() => {
     const m = new Map<string, number>();
     for (const f of finance) {
-      const label = f.company_id
-        ? (companyName.get(f.company_id) ?? '—')
-        : '—';
+      const label = f.company_id ? (companyName.get(f.company_id) ?? '—') : '—';
       m.set(label, (m.get(label) ?? 0) + Number(f.profit));
     }
     return [...m.entries()]
@@ -156,20 +178,28 @@ export function Finance() {
         title={t.finance.title}
         description="Faqat soʻmdagi shartnomalar boʻyicha"
         actions={
-          (companies ?? []).length > 0 ? (
-            <Select
-              className="min-w-[200px]"
-              value={companyId}
-              onChange={(e) => setCompanyId(e.target.value)}
-              options={[
-                { value: '', label: t.finance.allCompanies },
-                ...(companies ?? []).map((c) => ({
-                  value: c.id,
-                  label: c.name,
-                })),
-              ]}
+          <div className="flex flex-wrap items-center gap-2">
+            {(companies ?? []).length > 0 && (
+              <Select
+                className="min-w-[200px]"
+                value={companyId}
+                onChange={(e) => setCompanyId(e.target.value)}
+                options={[
+                  { value: '', label: t.finance.allCompanies },
+                  ...(companies ?? []).map((c) => ({
+                    value: c.id,
+                    label: c.name,
+                  })),
+                ]}
+              />
+            )}
+            <DateRangeFilter
+              from={dateFrom}
+              to={dateTo}
+              onFromChange={setDateFrom}
+              onToChange={setDateTo}
             />
-          ) : undefined
+          </div>
         }
       />
 
@@ -274,7 +304,9 @@ function ChartFrame({ data }: { data: { label: string; profit: number }[] }) {
               <Cell
                 key={i}
                 fill={
-                  d.profit >= 0 ? 'hsl(var(--success))' : 'hsl(var(--destructive))'
+                  d.profit >= 0
+                    ? 'hsl(var(--success))'
+                    : 'hsl(var(--destructive))'
                 }
               />
             ))}

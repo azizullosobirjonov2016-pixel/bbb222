@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Briefcase, Pencil, Plus, Trash2 } from 'lucide-react';
 import { t } from '@/i18n';
 import type { Company } from '@/types/db';
@@ -14,6 +14,7 @@ import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { CompanyForm } from '@/components/forms/CompanyForm';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export function Companies() {
@@ -23,6 +24,17 @@ export function Companies() {
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Company | null>(null);
   const [toDelete, setToDelete] = useState<CompanyWithStats | null>(null);
+  const [q, setQ] = useState('');
+
+  const filtered = useMemo(() => {
+    const s = q.trim().toLowerCase();
+    if (!s) return data ?? [];
+    return (data ?? []).filter(
+      (c) =>
+        c.name.toLowerCase().includes(s) ||
+        (c.inn_stir ?? '').toLowerCase().includes(s),
+    );
+  }, [data, q]);
 
   const openNew = () => {
     setEditing(null);
@@ -46,6 +58,17 @@ export function Companies() {
         }
       />
 
+      {(data ?? []).length > 0 && (
+        <div className="mb-4">
+          <Input
+            className="sm:max-w-xs"
+            placeholder={t.common.search}
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+          />
+        </div>
+      )}
+
       {isLoading ? (
         <div className="grid gap-3 sm:grid-cols-2">
           {Array.from({ length: 4 }).map((_, i) => (
@@ -54,7 +77,7 @@ export function Companies() {
         </div>
       ) : isError ? (
         <EmptyState title={t.errors.loadFailed} />
-      ) : (data ?? []).length === 0 ? (
+      ) : filtered.length === 0 ? (
         <EmptyState
           icon={Briefcase}
           title={t.company.empty}
@@ -67,7 +90,7 @@ export function Companies() {
         />
       ) : (
         <div className="grid gap-3 sm:grid-cols-2">
-          {(data ?? []).map((c) => (
+          {filtered.map((c) => (
             <Card key={c.id} className="flex flex-col p-4">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">

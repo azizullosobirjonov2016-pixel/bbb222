@@ -4,6 +4,10 @@ import { useActivity } from '@/api/activity';
 import { PageHeader } from '@/components/common/PageHeader';
 import { EmptyState } from '@/components/common/EmptyState';
 import { ActivityItem } from '@/components/common/ActivityItem';
+import {
+  DateRangeFilter,
+  inDateRange,
+} from '@/components/common/DateRangeFilter';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Card } from '@/components/ui/card';
@@ -18,11 +22,17 @@ const entityOptions = [
   { value: 'deliveries', label: t.activity.entityLabels.deliveries },
   { value: 'payments', label: t.activity.entityLabels.payments },
   { value: 'costs', label: t.activity.entityLabels.costs },
+  {
+    value: 'beneficiary_payouts',
+    label: t.activity.entityLabels.beneficiary_payouts,
+  },
 ];
 
 export function Activity() {
   const [entity, setEntity] = useState('');
   const [q, setQ] = useState('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
   const { data, isLoading, isError } = useActivity({
     entityType: entity || undefined,
     limit: 200,
@@ -30,11 +40,12 @@ export function Activity() {
 
   const filtered = useMemo(() => {
     const s = q.trim().toLowerCase();
-    if (!s) return data ?? [];
-    return (data ?? []).filter((a) =>
-      (a.summary ?? '').toLowerCase().includes(s),
-    );
-  }, [data, q]);
+    return (data ?? []).filter((a) => {
+      if (!inDateRange(a.created_at, dateFrom, dateTo)) return false;
+      if (!s) return true;
+      return (a.summary ?? '').toLowerCase().includes(s);
+    });
+  }, [data, q, dateFrom, dateTo]);
 
   return (
     <div>
@@ -52,6 +63,12 @@ export function Activity() {
           options={entityOptions}
           value={entity}
           onChange={(e) => setEntity(e.target.value)}
+        />
+        <DateRangeFilter
+          from={dateFrom}
+          to={dateTo}
+          onFromChange={setDateFrom}
+          onToChange={setDateTo}
         />
       </div>
 

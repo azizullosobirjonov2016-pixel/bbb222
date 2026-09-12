@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -30,6 +30,10 @@ import { EmptyState } from '@/components/common/EmptyState';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { ListRow } from '@/components/common/ListRow';
 import {
+  DateRangeFilter,
+  inDateRange,
+} from '@/components/common/DateRangeFilter';
+import {
   ContractStatusBadge,
   ObligationStatusBadge,
 } from '@/components/common/StatusBadge';
@@ -45,6 +49,8 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
 import { formatDate, formatMoney, daysUntil } from '@/lib/format';
 import { ActivityItem } from '@/components/common/ActivityItem';
 
@@ -110,6 +116,90 @@ export function ContractDetail() {
     kind: 'obligation' | 'delivery' | 'payment' | 'cost' | 'beneficiary';
     id: string;
   } | null>(null);
+
+  // Har bir bo'lim uchun alohida filtrlar
+  const [oblStatus, setOblStatus] = useState('');
+  const [oblQ, setOblQ] = useState('');
+  const [dlvFrom, setDlvFrom] = useState('');
+  const [dlvTo, setDlvTo] = useState('');
+  const [dlvQ, setDlvQ] = useState('');
+  const [payFrom, setPayFrom] = useState('');
+  const [payTo, setPayTo] = useState('');
+  const [payDir, setPayDir] = useState('');
+  const [payQ, setPayQ] = useState('');
+  const [costFrom, setCostFrom] = useState('');
+  const [costTo, setCostTo] = useState('');
+  const [costPaid, setCostPaid] = useState('');
+  const [costQ, setCostQ] = useState('');
+  const [benFrom, setBenFrom] = useState('');
+  const [benTo, setBenTo] = useState('');
+  const [benQ, setBenQ] = useState('');
+
+  const filteredObligations = useMemo(
+    () =>
+      obligations.filter((o) => {
+        if (oblStatus && o.status !== oblStatus) return false;
+        const s = oblQ.trim().toLowerCase();
+        return !s || o.description.toLowerCase().includes(s);
+      }),
+    [obligations, oblStatus, oblQ],
+  );
+
+  const filteredDeliveries = useMemo(
+    () =>
+      deliveries.filter((d) => {
+        if (!inDateRange(d.date, dlvFrom, dlvTo)) return false;
+        const s = dlvQ.trim().toLowerCase();
+        if (!s) return true;
+        return (
+          (d.document_ref ?? '').toLowerCase().includes(s) ||
+          (d.note ?? '').toLowerCase().includes(s)
+        );
+      }),
+    [deliveries, dlvFrom, dlvTo, dlvQ],
+  );
+
+  const filteredPayments = useMemo(
+    () =>
+      payments.filter((p) => {
+        if (!inDateRange(p.date, payFrom, payTo)) return false;
+        if (payDir && p.direction !== payDir) return false;
+        const s = payQ.trim().toLowerCase();
+        return !s || (p.purpose ?? '').toLowerCase().includes(s);
+      }),
+    [payments, payFrom, payTo, payDir, payQ],
+  );
+
+  const filteredCosts = useMemo(
+    () =>
+      costs.filter((c) => {
+        if (!inDateRange(c.date, costFrom, costTo)) return false;
+        if (costPaid === 'paid' && !c.is_paid) return false;
+        if (costPaid === 'unpaid' && c.is_paid) return false;
+        const s = costQ.trim().toLowerCase();
+        if (!s) return true;
+        return (
+          (c.category ?? '').toLowerCase().includes(s) ||
+          (c.description ?? '').toLowerCase().includes(s)
+        );
+      }),
+    [costs, costFrom, costTo, costPaid, costQ],
+  );
+
+  const filteredBeneficiaries = useMemo(
+    () =>
+      beneficiaries.filter((b) => {
+        if (!inDateRange(b.date, benFrom, benTo)) return false;
+        const s = benQ.trim().toLowerCase();
+        if (!s) return true;
+        return (
+          b.name.toLowerCase().includes(s) ||
+          (b.phone ?? '').toLowerCase().includes(s) ||
+          (b.note ?? '').toLowerCase().includes(s)
+        );
+      }),
+    [beneficiaries, benFrom, benTo, benQ],
+  );
 
   if (isLoading) {
     return (
@@ -284,10 +374,37 @@ export function ContractDetail() {
       {tab === 'obligations' && (
         <Section
           onAdd={() => setObligationForm({ open: true, row: null })}
-          empty={obligations.length === 0}
+          empty={filteredObligations.length === 0}
           emptyText={t.obligation.empty}
+          filterBar={
+            <div className="flex flex-wrap gap-2">
+              <Input
+                className="w-[200px]"
+                placeholder={t.common.search}
+                value={oblQ}
+                onChange={(e) => setOblQ(e.target.value)}
+              />
+              <Select
+                className="w-[160px]"
+                value={oblStatus}
+                onChange={(e) => setOblStatus(e.target.value)}
+                options={[
+                  { value: '', label: t.common.all },
+                  {
+                    value: 'pending',
+                    label: t.obligation.statusLabels.pending,
+                  },
+                  {
+                    value: 'partial',
+                    label: t.obligation.statusLabels.partial,
+                  },
+                  { value: 'done', label: t.obligation.statusLabels.done },
+                ]}
+              />
+            </div>
+          }
         >
-          {obligations.map((o) => (
+          {filteredObligations.map((o) => (
             <ListRow
               key={o.id}
               onEdit={() => setObligationForm({ open: true, row: o })}
@@ -314,7 +431,7 @@ export function ContractDetail() {
       {tab === 'deliveries' && (
         <Section
           onAdd={() => setDeliveryForm({ open: true, row: null })}
-          empty={deliveries.length === 0}
+          empty={filteredDeliveries.length === 0}
           emptyText={t.delivery.empty}
           extraAction={
             <Button
@@ -326,8 +443,24 @@ export function ContractDetail() {
               {t.deliveryImport.fromPdfButton}
             </Button>
           }
+          filterBar={
+            <div className="flex flex-wrap gap-2">
+              <Input
+                className="w-[200px]"
+                placeholder={t.common.search}
+                value={dlvQ}
+                onChange={(e) => setDlvQ(e.target.value)}
+              />
+              <DateRangeFilter
+                from={dlvFrom}
+                to={dlvTo}
+                onFromChange={setDlvFrom}
+                onToChange={setDlvTo}
+              />
+            </div>
+          }
         >
-          {deliveries.map((d) => (
+          {filteredDeliveries.map((d) => (
             <ListRow
               key={d.id}
               onEdit={() => setDeliveryForm({ open: true, row: d })}
@@ -353,10 +486,36 @@ export function ContractDetail() {
       {tab === 'payments' && (
         <Section
           onAdd={() => setPaymentForm({ open: true, row: null })}
-          empty={payments.length === 0}
+          empty={filteredPayments.length === 0}
           emptyText={t.payment.empty}
+          filterBar={
+            <div className="flex flex-wrap gap-2">
+              <Input
+                className="w-[200px]"
+                placeholder={t.common.search}
+                value={payQ}
+                onChange={(e) => setPayQ(e.target.value)}
+              />
+              <Select
+                className="w-[140px]"
+                value={payDir}
+                onChange={(e) => setPayDir(e.target.value)}
+                options={[
+                  { value: '', label: t.common.all },
+                  { value: 'in', label: t.payment.in },
+                  { value: 'out', label: t.payment.out },
+                ]}
+              />
+              <DateRangeFilter
+                from={payFrom}
+                to={payTo}
+                onFromChange={setPayFrom}
+                onToChange={setPayTo}
+              />
+            </div>
+          }
         >
-          {payments.map((p) => (
+          {filteredPayments.map((p) => (
             <ListRow
               key={p.id}
               onEdit={() => setPaymentForm({ open: true, row: p })}
@@ -386,10 +545,36 @@ export function ContractDetail() {
       {tab === 'costs' && (
         <Section
           onAdd={() => setCostForm({ open: true, row: null })}
-          empty={costs.length === 0}
+          empty={filteredCosts.length === 0}
           emptyText={t.cost.empty}
+          filterBar={
+            <div className="flex flex-wrap gap-2">
+              <Input
+                className="w-[200px]"
+                placeholder={t.common.search}
+                value={costQ}
+                onChange={(e) => setCostQ(e.target.value)}
+              />
+              <Select
+                className="w-[140px]"
+                value={costPaid}
+                onChange={(e) => setCostPaid(e.target.value)}
+                options={[
+                  { value: '', label: t.common.all },
+                  { value: 'paid', label: t.cost.paid },
+                  { value: 'unpaid', label: t.cost.unpaid },
+                ]}
+              />
+              <DateRangeFilter
+                from={costFrom}
+                to={costTo}
+                onFromChange={setCostFrom}
+                onToChange={setCostTo}
+              />
+            </div>
+          }
         >
-          {costs.map((c) => (
+          {filteredCosts.map((c) => (
             <ListRow
               key={c.id}
               onEdit={() => setCostForm({ open: true, row: c })}
@@ -435,10 +620,26 @@ export function ContractDetail() {
       {tab === 'beneficiaries' && (
         <Section
           onAdd={() => setBeneficiaryForm({ open: true, row: null })}
-          empty={beneficiaries.length === 0}
+          empty={filteredBeneficiaries.length === 0}
           emptyText={t.beneficiary.empty}
+          filterBar={
+            <div className="flex flex-wrap gap-2">
+              <Input
+                className="w-[200px]"
+                placeholder={t.common.search}
+                value={benQ}
+                onChange={(e) => setBenQ(e.target.value)}
+              />
+              <DateRangeFilter
+                from={benFrom}
+                to={benTo}
+                onFromChange={setBenFrom}
+                onToChange={setBenTo}
+              />
+            </div>
+          }
         >
-          {beneficiaries.map((b) => (
+          {filteredBeneficiaries.map((b) => (
             <ListRow
               key={b.id}
               onEdit={() => setBeneficiaryForm({ open: true, row: b })}
@@ -552,22 +753,27 @@ function Section({
   empty,
   emptyText,
   extraAction,
+  filterBar,
   children,
 }: {
   onAdd: () => void;
   empty: boolean;
   emptyText: string;
   extraAction?: React.ReactNode;
+  filterBar?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
     <div>
-      <div className="mb-3 flex justify-end gap-2">
-        {extraAction}
-        <Button size="sm" onClick={onAdd}>
-          <Plus className="h-4 w-4" />
-          {t.common.add}
-        </Button>
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        {filterBar ?? <div />}
+        <div className="flex gap-2">
+          {extraAction}
+          <Button size="sm" onClick={onAdd}>
+            <Plus className="h-4 w-4" />
+            {t.common.add}
+          </Button>
+        </div>
       </div>
       {empty ? (
         <EmptyState title={emptyText} />

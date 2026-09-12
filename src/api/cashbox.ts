@@ -17,14 +17,34 @@ export interface CashboxBalance {
   balance: number;
 }
 
-export function useCashbox() {
+export function useCashbox(dateFrom?: string, dateTo?: string) {
   return useQuery({
-    queryKey: qk.cashbox,
+    queryKey: [...qk.cashbox, dateFrom ?? '', dateTo ?? ''] as const,
     queryFn: async (): Promise<CashboxBalance[]> => {
+      let paymentsQ = supabase
+        .from('payments')
+        .select('direction, amount, currency');
+      let costsQ = supabase
+        .from('costs')
+        .select('amount, currency')
+        .eq('is_paid', true);
+      let beneficiariesQ = supabase
+        .from('beneficiary_payouts')
+        .select('amount, currency');
+      if (dateFrom) {
+        paymentsQ = paymentsQ.gte('date', dateFrom);
+        costsQ = costsQ.gte('date', dateFrom);
+        beneficiariesQ = beneficiariesQ.gte('date', dateFrom);
+      }
+      if (dateTo) {
+        paymentsQ = paymentsQ.lte('date', dateTo);
+        costsQ = costsQ.lte('date', dateTo);
+        beneficiariesQ = beneficiariesQ.lte('date', dateTo);
+      }
       const [paymentsRes, costsRes, beneficiariesRes] = await Promise.all([
-        supabase.from('payments').select('direction, amount, currency'),
-        supabase.from('costs').select('amount, currency').eq('is_paid', true),
-        supabase.from('beneficiary_payouts').select('amount, currency'),
+        paymentsQ,
+        costsQ,
+        beneficiariesQ,
       ]);
       const payments = unwrap(paymentsRes, 'cashbox.payments') as {
         direction: 'in' | 'out';
