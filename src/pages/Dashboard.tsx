@@ -98,29 +98,34 @@ export function Dashboard() {
             value={formatMoney(totalProfit)}
             tone={totalProfit >= 0 ? 'success' : 'destructive'}
             icon={Wallet}
+            to="/finance"
           />
           <StatCard
             label={t.cashbox.balance}
             value={formatMoney(cashboxBalance)}
             tone={cashboxBalance >= 0 ? 'success' : 'destructive'}
             icon={Banknote}
+            to="/cashbox"
           />
           <StatCard
             label={t.dashboard.activeContracts}
             value={String(stats.active)}
             icon={FileText}
+            to="/contracts"
           />
           <StatCard
             label={t.dashboard.overdue}
             value={String(stats.overdue)}
             tone={stats.overdue > 0 ? 'destructive' : 'default'}
             icon={AlertTriangle}
+            to="/contracts"
           />
           <StatCard
             label={t.dashboard.dueSoon}
             value={String(stats.dueSoon)}
             tone={stats.dueSoon > 0 ? 'warning' : 'default'}
             icon={CalendarClock}
+            to="/contracts"
           />
         </div>
       )}

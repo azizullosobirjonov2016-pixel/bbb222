@@ -5,7 +5,9 @@ import {
   RefreshCw,
   Download,
   Upload,
+  ChevronRight,
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import type { ActivityLog, ActivityAction } from '@/types/db';
 import { t } from '@/i18n';
 import { formatDateTime, timeAgo } from '@/lib/format';
@@ -24,8 +26,8 @@ export function ActivityItem({ item }: { item: ActivityLog }) {
   const entity = t.activity.entityLabels[item.entity_type] ?? item.entity_type;
   const action = t.activity.actionLabels[item.action] ?? item.action;
 
-  return (
-    <div className="flex items-start gap-3 rounded-md px-2 py-2.5 hover:bg-muted/50">
+  const body = (
+    <>
       <div className="mt-0.5 rounded-md bg-muted p-1.5 text-muted-foreground">
         <Icon className="h-4 w-4" />
       </div>
@@ -44,6 +46,23 @@ export function ActivityItem({ item }: { item: ActivityLog }) {
           {item.user_email ? ` · ${item.user_email}` : ''}
         </p>
       </div>
-    </div>
+    </>
+  );
+
+  if (item.contract_id) {
+    return (
+      <Link
+        to={`/contracts/${item.contract_id}`}
+        className="flex items-start gap-3 rounded-md px-2 py-2.5 hover:bg-muted/50"
+        title={t.activity.goToContract}
+      >
+        {body}
+        <ChevronRight className="mt-1 h-4 w-4 shrink-0 text-muted-foreground" />
+      </Link>
+    );
+  }
+
+  return (
+    <div className="flex items-start gap-3 rounded-md px-2 py-2.5">{body}</div>
   );
 }

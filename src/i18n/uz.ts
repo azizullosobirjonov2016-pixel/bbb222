@@ -258,6 +258,7 @@ export const uz = {
     entity: 'Obyekt',
     action: 'Amal',
     when: 'Vaqt',
+    goToContract: "Shartnomaga o'tish",
     actionLabels: {
       create: 'yaratildi',
       update: 'tahrirlandi',

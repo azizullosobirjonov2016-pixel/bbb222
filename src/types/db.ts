@@ -164,6 +164,7 @@ export interface ActivityLog {
   user_email: string | null;
   entity_type: string;
   entity_id: string | null;
+  contract_id: string | null;
   action: ActivityAction;
   summary: string | null;
   diff: Record<string, unknown> | null;
