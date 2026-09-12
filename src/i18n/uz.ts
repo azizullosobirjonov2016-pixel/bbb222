@@ -191,6 +191,10 @@ export const uz = {
     description: 'Tavsif',
     buyerName: 'Xarid qilgan inson',
     buyerPhone: 'Telefon raqami',
+    isPaid: "To'landi",
+    paid: "To'landi",
+    unpaid: "To'lanmadi",
+    markPaid: "To'lov qilish",
     empty: 'Xarajatlar kiritilmagan.',
   },
   finance: {

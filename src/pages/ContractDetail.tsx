@@ -14,7 +14,7 @@ import { useContractFinance } from '@/api/finance';
 import { useObligations, useDeleteObligation } from '@/api/obligations';
 import { useDeliveries, useDeleteDelivery } from '@/api/deliveries';
 import { usePayments, useDeletePayment } from '@/api/payments';
-import { useCosts, useDeleteCost } from '@/api/costs';
+import { useCosts, useDeleteCost, useToggleCostPaid } from '@/api/costs';
 import { useActivity } from '@/api/activity';
 import type { Cost, Delivery, Obligation, Payment } from '@/types/db';
 import { useToast } from '@/components/ui/toast';
@@ -61,6 +61,7 @@ export function ContractDetail() {
   const delDelivery = useDeleteDelivery(id);
   const delPayment = useDeletePayment(id);
   const delCost = useDeleteCost(id);
+  const toggleCostPaid = useToggleCostPaid(id);
 
   const [tab, setTab] = useState<TabKey>('obligations');
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -379,6 +380,26 @@ export function ContractDetail() {
                 {formatDate(c.date)}
                 {c.description ? ` · ${c.description}` : ''}
               </p>
+              <div className="mt-2 flex items-center gap-2">
+                <Badge tone={c.is_paid ? 'success' : 'warning'}>
+                  {c.is_paid ? t.cost.paid : t.cost.unpaid}
+                </Badge>
+                {!c.is_paid && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    loading={
+                      toggleCostPaid.isPending &&
+                      toggleCostPaid.variables?.id === c.id
+                    }
+                    onClick={() =>
+                      toggleCostPaid.mutate({ id: c.id, is_paid: true })
+                    }
+                  >
+                    {t.cost.markPaid}
+                  </Button>
+                )}
+              </div>
             </ListRow>
           ))}
         </Section>

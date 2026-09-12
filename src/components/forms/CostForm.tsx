@@ -20,6 +20,7 @@ const schema = z.object({
   description: z.string().optional(),
   buyer_name: z.string().optional(),
   buyer_phone: z.string().optional(),
+  is_paid: z.boolean(),
 });
 type FormValues = z.infer<typeof schema>;
 
@@ -71,6 +72,7 @@ export function CostForm({
       description: cost?.description ?? '',
       buyer_name: cost?.buyer_name ?? '',
       buyer_phone: cost?.buyer_phone ?? '',
+      is_paid: cost?.is_paid ?? false,
     },
   });
 
@@ -83,6 +85,7 @@ export function CostForm({
       description: v.description?.trim() || null,
       buyer_name: v.buyer_name?.trim() || null,
       buyer_phone: v.buyer_phone?.trim() || null,
+      is_paid: v.is_paid,
     };
     save.mutate(
       { id: cost?.id, values: payload },
@@ -133,6 +136,14 @@ export function CostForm({
             <Input {...register('buyer_phone')} />
           </Field>
         </div>
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            className="h-4 w-4 rounded border-input"
+            {...register('is_paid')}
+          />
+          {t.cost.isPaid}
+        </label>
         <div className="flex justify-end gap-2 pt-2">
           <Button type="button" variant="outline" onClick={onClose}>
             {t.common.cancel}

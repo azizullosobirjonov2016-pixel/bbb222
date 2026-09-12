@@ -67,6 +67,29 @@ export function useSaveCost(contractId: string) {
   });
 }
 
+export function useToggleCostPaid(contractId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      id,
+      is_paid,
+    }: {
+      id: string;
+      is_paid: boolean;
+    }): Promise<Cost> =>
+      unwrap(
+        await supabase
+          .from('costs')
+          .update({ is_paid })
+          .eq('id', id)
+          .select()
+          .single(),
+        'costs.togglePaid',
+      ),
+    onSuccess: () => invalidate(qc, contractId),
+  });
+}
+
 export function useDeleteCost(contractId: string) {
   const qc = useQueryClient();
   return useMutation({

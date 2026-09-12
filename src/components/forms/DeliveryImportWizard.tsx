@@ -146,6 +146,7 @@ export function DeliveryImportWizard({
           description: cost.source.trim() || null,
           buyer_name: cost.buyer_name.trim() || null,
           buyer_phone: cost.buyer_phone.trim() || null,
+          is_paid: false,
         },
       },
       {
@@ -167,6 +168,7 @@ export function DeliveryImportWizard({
           description: extra.description.trim() || null,
           buyer_name: null,
           buyer_phone: null,
+          is_paid: false,
         },
       },
       {

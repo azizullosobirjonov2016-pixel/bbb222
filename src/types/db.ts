@@ -114,6 +114,7 @@ export interface Cost {
   description: string | null;
   buyer_name: string | null;
   buyer_phone: string | null;
+  is_paid: boolean;
   created_at: string;
 }
 
