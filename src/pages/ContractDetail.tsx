@@ -1,23 +1,22 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Pencil, Plus, Trash2, ExternalLink } from 'lucide-react';
+import {
+  ArrowLeft,
+  Pencil,
+  Plus,
+  Trash2,
+  ExternalLink,
+  FileUp,
+} from 'lucide-react';
 import { t } from '@/i18n';
 import { useContract, useDeleteContract } from '@/api/contracts';
 import { useContractFinance } from '@/api/finance';
-import {
-  useObligations,
-  useDeleteObligation,
-} from '@/api/obligations';
+import { useObligations, useDeleteObligation } from '@/api/obligations';
 import { useDeliveries, useDeleteDelivery } from '@/api/deliveries';
 import { usePayments, useDeletePayment } from '@/api/payments';
 import { useCosts, useDeleteCost } from '@/api/costs';
 import { useActivity } from '@/api/activity';
-import type {
-  Cost,
-  Delivery,
-  Obligation,
-  Payment,
-} from '@/types/db';
+import type { Cost, Delivery, Obligation, Payment } from '@/types/db';
 import { useToast } from '@/components/ui/toast';
 import { PageHeader } from '@/components/common/PageHeader';
 import { EmptyState } from '@/components/common/EmptyState';
@@ -30,6 +29,7 @@ import {
 import { FinancePanel } from '@/components/contract/FinancePanel';
 import { ObligationForm } from '@/components/forms/ObligationForm';
 import { DeliveryForm } from '@/components/forms/DeliveryForm';
+import { DeliveryImportWizard } from '@/components/forms/DeliveryImportWizard';
 import { PaymentForm } from '@/components/forms/PaymentForm';
 import { CostForm } from '@/components/forms/CostForm';
 import { Button } from '@/components/ui/button';
@@ -41,12 +41,7 @@ import { formatDate, formatMoney, daysUntil } from '@/lib/format';
 import { ActivityItem } from '@/components/common/ActivityItem';
 
 type TabKey =
-  | 'obligations'
-  | 'deliveries'
-  | 'payments'
-  | 'costs'
-  | 'finance'
-  | 'activity';
+  'obligations' | 'deliveries' | 'payments' | 'costs' | 'finance' | 'activity';
 
 export function ContractDetail() {
   const { id = '' } = useParams();
@@ -78,19 +73,22 @@ export function ContractDetail() {
     open: boolean;
     row: Delivery | null;
   }>({ open: false, row: null });
+  const [deliveryImportOpen, setDeliveryImportOpen] = useState(false);
   const [paymentForm, setPaymentForm] = useState<{
     open: boolean;
     row: Payment | null;
   }>({ open: false, row: null });
-  const [costForm, setCostForm] = useState<{ open: boolean; row: Cost | null }>({
-    open: false,
-    row: null,
-  });
+  const [costForm, setCostForm] = useState<{ open: boolean; row: Cost | null }>(
+    {
+      open: false,
+      row: null,
+    },
+  );
 
-  const [rowDelete, setRowDelete] = useState<
-    | { kind: 'obligation' | 'delivery' | 'payment' | 'cost'; id: string }
-    | null
-  >(null);
+  const [rowDelete, setRowDelete] = useState<{
+    kind: 'obligation' | 'delivery' | 'payment' | 'cost';
+    id: string;
+  } | null>(null);
 
   if (isLoading) {
     return (
@@ -186,7 +184,11 @@ export function ContractDetail() {
           </Badge>
           {contract.source === 'uzex' && <Badge tone="primary">UzEX</Badge>}
           {dLeft !== null && contract.status !== 'fulfilled' && (
-            <Badge tone={dLeft < 0 ? 'destructive' : dLeft <= 7 ? 'warning' : 'muted'}>
+            <Badge
+              tone={
+                dLeft < 0 ? 'destructive' : dLeft <= 7 ? 'warning' : 'muted'
+              }
+            >
               {dLeft < 0
                 ? t.contract.overduePast(dLeft)
                 : t.contract.overdueIn(dLeft)}
@@ -261,9 +263,7 @@ export function ContractDetail() {
             <ListRow
               key={o.id}
               onEdit={() => setObligationForm({ open: true, row: o })}
-              onDelete={() =>
-                setRowDelete({ kind: 'obligation', id: o.id })
-              }
+              onDelete={() => setRowDelete({ kind: 'obligation', id: o.id })}
             >
               <div className="flex items-center gap-2">
                 <ObligationStatusBadge status={o.status} />
@@ -288,6 +288,16 @@ export function ContractDetail() {
           onAdd={() => setDeliveryForm({ open: true, row: null })}
           empty={deliveries.length === 0}
           emptyText={t.delivery.empty}
+          extraAction={
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setDeliveryImportOpen(true)}
+            >
+              <FileUp className="h-4 w-4" />
+              {t.deliveryImport.fromPdfButton}
+            </Button>
+          }
         >
           {deliveries.map((d) => (
             <ListRow
@@ -400,6 +410,12 @@ export function ContractDetail() {
         obligations={obligations}
         delivery={deliveryForm.row}
       />
+      <DeliveryImportWizard
+        open={deliveryImportOpen}
+        onClose={() => setDeliveryImportOpen(false)}
+        contract={contract}
+        deliveredSoFar={deliveries.reduce((s, dl) => s + dl.amount, 0)}
+      />
       <PaymentForm
         open={paymentForm.open}
         onClose={() => setPaymentForm({ open: false, row: null })}
@@ -451,16 +467,19 @@ function Section({
   onAdd,
   empty,
   emptyText,
+  extraAction,
   children,
 }: {
   onAdd: () => void;
   empty: boolean;
   emptyText: string;
+  extraAction?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
     <div>
-      <div className="mb-3 flex justify-end">
+      <div className="mb-3 flex justify-end gap-2">
+        {extraAction}
         <Button size="sm" onClick={onAdd}>
           <Plus className="h-4 w-4" />
           {t.common.add}

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
-import type { Contract } from '@/types/db';
+import type { Contract, ContractStatus } from '@/types/db';
 import { CACHE_TIME, currentUserId, qk, unwrap } from './helpers';
 
 export type ContractInput = Omit<
@@ -80,6 +80,34 @@ export function useSaveContract() {
       qc.invalidateQueries({ queryKey: qk.contracts });
       qc.invalidateQueries({ queryKey: qk.contract(row.id) });
       qc.invalidateQueries({ queryKey: qk.finance });
+      qc.invalidateQueries({ queryKey: qk.activity() });
+    },
+  });
+}
+
+/** Faqat statusni yangilash (masalan, topshirish to'liq bo'lganda avtomatik) */
+export function useUpdateContractStatus() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      id,
+      status,
+    }: {
+      id: string;
+      status: ContractStatus;
+    }): Promise<Contract> =>
+      unwrap(
+        await supabase
+          .from('contracts')
+          .update({ status })
+          .eq('id', id)
+          .select()
+          .single(),
+        'contracts.updateStatus',
+      ),
+    onSuccess: (row) => {
+      qc.invalidateQueries({ queryKey: qk.contracts });
+      qc.invalidateQueries({ queryKey: qk.contract(row.id) });
       qc.invalidateQueries({ queryKey: qk.activity() });
     },
   });

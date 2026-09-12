@@ -189,6 +189,8 @@ export const uz = {
     date: 'Sana',
     amount: 'Summa',
     description: 'Tavsif',
+    buyerName: 'Xarid qilgan inson',
+    buyerPhone: 'Telefon raqami',
     empty: 'Xarajatlar kiritilmagan.',
   },
   finance: {
@@ -272,6 +274,24 @@ export const uz = {
     needNumber: 'Shartnoma raqami kerak',
     needCompany: '"Mening tashkilotim" nomi kerak',
     fromPdfButton: 'PDF dan import',
+  },
+  deliveryImport: {
+    title: 'Hisobvaraq-faktura PDF orqali topshirish',
+    fromPdfButton: 'PDF orqali',
+    contractMismatch:
+      'Diqqat: hujjatdagi shartnoma raqami joriy shartnomanikidan farq qiladi',
+    costPrompt:
+      "Bu mahsulot qayerdan va qanday narxga olindi? (ixtiyoriy, keyin ham to'ldirish mumkin)",
+    purchaseSource: 'Qayerdan olindi',
+    purchasePrice: 'Xarid narxi',
+    purchaseCategory: 'Tannarx / mahsulot',
+    skip: "O'tkazib yuborish",
+    moreCostsPrompt: "Yana qandaydir xarajat bormi? Bo'lsa kiriting:",
+    addAnotherCost: "Qo'shish",
+    finish: 'Yakunlash',
+    autoFulfilled:
+      'Yetkazilgan summa shartnoma summasiga yetdi — status "Bajarilgan"ga o\'zgartirildi',
+    done: 'Topshirish qayd etildi',
   },
   settings: {
     title: 'Sozlamalar',

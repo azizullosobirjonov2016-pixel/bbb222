@@ -7,22 +7,13 @@ export type OrgType = 'customer' | 'supplier' | 'both';
 export type OurRole = 'seller' | 'buyer';
 export type CurrencyCode = 'UZS' | 'USD';
 export type ContractStatus =
-  | 'draft'
-  | 'active'
-  | 'partially_fulfilled'
-  | 'fulfilled'
-  | 'cancelled';
+  'draft' | 'active' | 'partially_fulfilled' | 'fulfilled' | 'cancelled';
 export type ObligationStatus = 'pending' | 'partial' | 'done';
 export type PaymentDirection = 'in' | 'out';
 export type ContractSource = 'manual' | 'uzex';
 export type TemplateKind = 'contract' | 'obligation_set' | 'checklist';
 export type ActivityAction =
-  | 'create'
-  | 'update'
-  | 'delete'
-  | 'status_change'
-  | 'import'
-  | 'export';
+  'create' | 'update' | 'delete' | 'status_change' | 'import' | 'export';
 
 export interface Company {
   id: string;
@@ -121,6 +112,8 @@ export interface Cost {
   amount: number;
   currency: CurrencyCode;
   description: string | null;
+  buyer_name: string | null;
+  buyer_phone: string | null;
   created_at: string;
 }
 

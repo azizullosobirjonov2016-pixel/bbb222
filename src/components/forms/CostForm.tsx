@@ -18,6 +18,8 @@ const schema = z.object({
   amount: z.string().min(1, t.common.required),
   currency: z.enum(['UZS', 'USD']),
   description: z.string().optional(),
+  buyer_name: z.string().optional(),
+  buyer_phone: z.string().optional(),
 });
 type FormValues = z.infer<typeof schema>;
 
@@ -67,6 +69,8 @@ export function CostForm({
       amount: cost?.amount?.toString() ?? '',
       currency: cost?.currency ?? defaultCurrency,
       description: cost?.description ?? '',
+      buyer_name: cost?.buyer_name ?? '',
+      buyer_phone: cost?.buyer_phone ?? '',
     },
   });
 
@@ -77,6 +81,8 @@ export function CostForm({
       amount: Number(v.amount),
       currency: v.currency,
       description: v.description?.trim() || null,
+      buyer_name: v.buyer_name?.trim() || null,
+      buyer_phone: v.buyer_phone?.trim() || null,
     };
     save.mutate(
       { id: cost?.id, values: payload },
@@ -119,6 +125,14 @@ export function CostForm({
         <Field label={t.cost.description} optional>
           <Textarea rows={2} {...register('description')} />
         </Field>
+        <div className="grid grid-cols-2 gap-4">
+          <Field label={t.cost.buyerName} optional>
+            <Input {...register('buyer_name')} />
+          </Field>
+          <Field label={t.cost.buyerPhone} optional>
+            <Input {...register('buyer_phone')} />
+          </Field>
+        </div>
         <div className="flex justify-end gap-2 pt-2">
           <Button type="button" variant="outline" onClick={onClose}>
             {t.common.cancel}
