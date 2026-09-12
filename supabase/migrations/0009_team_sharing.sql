@@ -25,19 +25,26 @@ create table if not exists public.team_members (
 
 -- Joriy ma'lumotlar egasini avtomatik admin qilib qo'shamiz (mavjud
 -- shartnomalar/tashkilotlar kimning user_id'si bo'lsa, o'sha admin bo'ladi).
-insert into public.team_members (user_id, email, role)
-select distinct c.user_id, u.email, 'admin'
-from public.contracts c
-join auth.users u on u.id = c.user_id
-union
-select distinct o.user_id, u.email, 'admin'
-from public.organizations o
-join auth.users u on u.id = o.user_id
-union
-select distinct co.user_id, u.email, 'admin'
-from public.companies co
-join auth.users u on u.id = co.user_id
-on conflict (user_id) do nothing;
+-- Exception handler bilan o'ralgan — skript qayta ishga tushirilsa ham
+-- (masalan, birinchi urinish yarim yo'lda to'xtagan bo'lsa) xato bermaydi.
+do $$
+begin
+  insert into public.team_members (user_id, email, role)
+  select distinct c.user_id, u.email, 'admin'
+  from public.contracts c
+  join auth.users u on u.id = c.user_id
+  union
+  select distinct o.user_id, u.email, 'admin'
+  from public.organizations o
+  join auth.users u on u.id = o.user_id
+  union
+  select distinct co.user_id, u.email, 'admin'
+  from public.companies co
+  join auth.users u on u.id = co.user_id
+  on conflict (user_id) do nothing;
+exception when unique_violation then
+  null;
+end $$;
 
 -- Xavfsizlik: agar hech kim admin sifatida topilmasa (masalan, hali
 -- shartnoma/tashkilot/kompaniya kiritilmagan bo'sh akkaunt), migratsiyani
