@@ -29,6 +29,30 @@ export function unwrap<T>(
   return res.data as T;
 }
 
+/**
+ * O'chirish javobini tekshiradi. RLS ruxsat bermasa (masalan, faqat admin
+ * o'chira oladigan qatorni oddiy a'zo o'chirmoqchi bo'lsa), Supabase xato
+ * qaytarmaydi — shunchaki 0 qator o'chiriladi (`data` bo'sh bo'ladi).
+ * Shu holatni aniq xato sifatida ko'rsatamiz.
+ */
+export function unwrapDelete(
+  res: { data: unknown; error: unknown },
+  context?: string,
+): void {
+  if (res.error) {
+    const message = getErrorMessage(res.error);
+    if (context) logError(context, res.error);
+    throw new AppError('API_ERROR', message, res.error);
+  }
+  if (!res.data) {
+    throw new AppError(
+      'FORBIDDEN',
+      'Bu amalni faqat administrator bajara oladi.',
+      null,
+    );
+  }
+}
+
 /** Standart query keshlash muddati (ko'p ma'lumotlar uchun) */
 export const CACHE_TIME = {
   staleTime: 5 * 60 * 1000,

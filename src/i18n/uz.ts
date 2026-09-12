@@ -325,6 +325,12 @@ export const uz = {
   settings: {
     title: 'Sozlamalar',
     account: 'Akkount',
+    team: 'Jamoa',
+    yourRole: 'Sizning rolingiz',
+    roleAdmin: 'Admin',
+    roleMember: "A'zo",
+    teamHint:
+      "Yangi xodim avval ro'yxatdan o'tsin, so'ng uni jamoaga qo'shish uchun Supabase SQL Editor'da bitta buyruq ishga tushiring (admin bilan bog'laning).",
     theme: 'Koʻrinish',
     themeLight: 'Yorugʻ',
     themeDark: 'Qorongʻi',

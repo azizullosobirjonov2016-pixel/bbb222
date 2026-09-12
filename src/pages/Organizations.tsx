@@ -12,6 +12,7 @@ import { PageHeader } from '@/components/common/PageHeader';
 import { EmptyState } from '@/components/common/EmptyState';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { OrganizationForm } from '@/components/forms/OrganizationForm';
+import { useIsAdmin } from '@/hooks/useTeamRole';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -28,6 +29,7 @@ export function Organizations() {
   const { data, isLoading, isError } = useOrganizations();
   const del = useDeleteOrganization();
   const { toast } = useToast();
+  const isAdmin = useIsAdmin();
   const [q, setQ] = useState('');
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Organization | null>(null);
@@ -114,15 +116,17 @@ export function Organizations() {
                   >
                     <Pencil className="h-4 w-4" />
                   </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-destructive"
-                    onClick={() => setToDelete(o)}
-                    aria-label={t.common.delete}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  {isAdmin && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-destructive"
+                      onClick={() => setToDelete(o)}
+                      aria-label={t.common.delete}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
               </div>
               <dl className="mt-3 space-y-1 text-sm text-muted-foreground">

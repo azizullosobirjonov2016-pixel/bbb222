@@ -12,6 +12,7 @@ import { PageHeader } from '@/components/common/PageHeader';
 import { EmptyState } from '@/components/common/EmptyState';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { CompanyForm } from '@/components/forms/CompanyForm';
+import { useIsAdmin } from '@/hooks/useTeamRole';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -21,6 +22,7 @@ export function Companies() {
   const { data, isLoading, isError } = useCompanies();
   const del = useDeleteCompany();
   const { toast } = useToast();
+  const isAdmin = useIsAdmin();
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Company | null>(null);
   const [toDelete, setToDelete] = useState<CompanyWithStats | null>(null);
@@ -111,15 +113,17 @@ export function Companies() {
                   >
                     <Pencil className="h-4 w-4" />
                   </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-destructive"
-                    onClick={() => setToDelete(c)}
-                    aria-label={t.common.delete}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  {isAdmin && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-destructive"
+                      onClick={() => setToDelete(c)}
+                      aria-label={t.common.delete}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
               </div>
               {c.note && (

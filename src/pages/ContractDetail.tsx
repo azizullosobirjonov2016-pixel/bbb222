@@ -17,6 +17,7 @@ import { usePayments, useDeletePayment } from '@/api/payments';
 import { useCosts, useDeleteCost, useToggleCostPaid } from '@/api/costs';
 import { useBeneficiaries, useDeleteBeneficiary } from '@/api/beneficiaries';
 import { useActivity } from '@/api/activity';
+import { useIsAdmin } from '@/hooks/useTeamRole';
 import type {
   BeneficiaryPayout,
   Cost,
@@ -67,6 +68,7 @@ export function ContractDetail() {
   const { id = '' } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const isAdmin = useIsAdmin();
 
   const { data: contract, isLoading, isError } = useContract(id);
   const { data: finance } = useContractFinance(id);
@@ -279,15 +281,17 @@ export function ContractDetail() {
               <Pencil className="h-4 w-4" />
               {t.common.edit}
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-destructive"
-              onClick={() => setConfirmDelete(true)}
-              aria-label={t.common.delete}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
+            {isAdmin && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-destructive"
+                onClick={() => setConfirmDelete(true)}
+                aria-label={t.common.delete}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            )}
           </>
         }
       />
@@ -408,7 +412,11 @@ export function ContractDetail() {
             <ListRow
               key={o.id}
               onEdit={() => setObligationForm({ open: true, row: o })}
-              onDelete={() => setRowDelete({ kind: 'obligation', id: o.id })}
+              onDelete={
+                isAdmin
+                  ? () => setRowDelete({ kind: 'obligation', id: o.id })
+                  : undefined
+              }
             >
               <div className="flex items-center gap-2">
                 <ObligationStatusBadge status={o.status} />
@@ -464,7 +472,11 @@ export function ContractDetail() {
             <ListRow
               key={d.id}
               onEdit={() => setDeliveryForm({ open: true, row: d })}
-              onDelete={() => setRowDelete({ kind: 'delivery', id: d.id })}
+              onDelete={
+                isAdmin
+                  ? () => setRowDelete({ kind: 'delivery', id: d.id })
+                  : undefined
+              }
             >
               <div className="flex items-center justify-between gap-2">
                 <span className="text-sm font-medium">
@@ -519,7 +531,11 @@ export function ContractDetail() {
             <ListRow
               key={p.id}
               onEdit={() => setPaymentForm({ open: true, row: p })}
-              onDelete={() => setRowDelete({ kind: 'payment', id: p.id })}
+              onDelete={
+                isAdmin
+                  ? () => setRowDelete({ kind: 'payment', id: p.id })
+                  : undefined
+              }
             >
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
@@ -578,7 +594,11 @@ export function ContractDetail() {
             <ListRow
               key={c.id}
               onEdit={() => setCostForm({ open: true, row: c })}
-              onDelete={() => setRowDelete({ kind: 'cost', id: c.id })}
+              onDelete={
+                isAdmin
+                  ? () => setRowDelete({ kind: 'cost', id: c.id })
+                  : undefined
+              }
             >
               <div className="flex items-center justify-between gap-2">
                 <span className="text-sm font-medium">
@@ -643,7 +663,11 @@ export function ContractDetail() {
             <ListRow
               key={b.id}
               onEdit={() => setBeneficiaryForm({ open: true, row: b })}
-              onDelete={() => setRowDelete({ kind: 'beneficiary', id: b.id })}
+              onDelete={
+                isAdmin
+                  ? () => setRowDelete({ kind: 'beneficiary', id: b.id })
+                  : undefined
+              }
             >
               <div className="flex items-center justify-between gap-2">
                 <span className="text-sm font-medium">{b.name}</span>

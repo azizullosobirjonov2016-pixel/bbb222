@@ -1,21 +1,31 @@
 import { useState } from 'react';
-import { CheckCircle2, Download, FileSpreadsheet, LogOut, XCircle } from 'lucide-react';
+import {
+  CheckCircle2,
+  Download,
+  FileSpreadsheet,
+  LogOut,
+  XCircle,
+} from 'lucide-react';
 import { t } from '@/i18n';
 import { isSupabaseConfigured } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/hooks/useTheme';
+import { useIsAdmin, useTeamMembers } from '@/hooks/useTeamRole';
 import { useToast } from '@/components/ui/toast';
 import { exportAllJson, exportContractsCsv } from '@/lib/export';
 import { PageHeader } from '@/components/common/PageHeader';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
 
 const APP_VERSION = '0.3.0';
 
 export function Settings() {
   const { user, signOut } = useAuth();
   const { theme, setTheme } = useTheme();
+  const isAdmin = useIsAdmin();
+  const { data: team } = useTeamMembers();
   const { toast } = useToast();
   const [busy, setBusy] = useState<'json' | 'csv' | null>(null);
 
@@ -46,6 +56,40 @@ export function Settings() {
             <LogOut className="h-4 w-4" />
             {t.auth.signOut}
           </Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t.settings.team}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          <p className="text-sm text-muted-foreground">
+            {t.settings.yourRole}:{' '}
+            <Badge tone={isAdmin ? 'primary' : 'muted'}>
+              {isAdmin ? t.settings.roleAdmin : t.settings.roleMember}
+            </Badge>
+          </p>
+          {(team ?? []).length > 0 && (
+            <ul className="divide-y text-sm">
+              {(team ?? []).map((m) => (
+                <li
+                  key={m.user_id}
+                  className="flex items-center justify-between gap-2 py-2"
+                >
+                  <span className="truncate text-muted-foreground">
+                    {m.email ?? m.user_id}
+                  </span>
+                  <Badge tone={m.role === 'admin' ? 'primary' : 'muted'}>
+                    {m.role === 'admin'
+                      ? t.settings.roleAdmin
+                      : t.settings.roleMember}
+                  </Badge>
+                </li>
+              ))}
+            </ul>
+          )}
+          <p className="text-xs text-muted-foreground">{t.settings.teamHint}</p>
         </CardContent>
       </Card>
 

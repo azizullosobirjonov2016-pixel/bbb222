@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import type { Company } from '@/types/db';
-import { CACHE_TIME, currentUserId, unwrap } from './helpers';
+import { CACHE_TIME, currentUserId, unwrap, unwrapDelete } from './helpers';
 
 const KEY = ['companies'] as const;
 
@@ -85,7 +85,7 @@ export function useDeleteCompany() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      unwrap(
+      unwrapDelete(
         await supabase
           .from('companies')
           .delete()

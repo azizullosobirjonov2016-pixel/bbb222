@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import type { Obligation } from '@/types/db';
-import { CACHE_TIME, currentUserId, qk, unwrap } from './helpers';
+import { CACHE_TIME, currentUserId, qk, unwrap, unwrapDelete } from './helpers';
 
 export type ObligationInput = Omit<
   Obligation,
@@ -71,7 +71,7 @@ export function useDeleteObligation(contractId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      unwrap(
+      unwrapDelete(
         await supabase
           .from('obligations')
           .delete()
