@@ -44,6 +44,7 @@ export const uz = {
     details: 'Batafsil',
     none: "Yo'q",
     optional: 'ixtiyoriy',
+    pdfReport: 'PDF hisobot',
   },
   auth: {
     signIn: 'Kirish',
@@ -251,6 +252,8 @@ export const uz = {
     topOrganizations: 'Yirik tashkilotlar',
     emptyActivity: 'Harakatlar tarixi boʻsh.',
     quickAdd: 'Tez qoʻshish',
+    overdueReminder: (n: number) => `${n} ta shartnoma muddati o'tgan`,
+    unpaidReminder: (n: number) => `${n} ta xarajat to'lanmagan`,
   },
   activity: {
     title: 'Harakatlar jurnali',
@@ -329,8 +332,11 @@ export const uz = {
     yourRole: 'Sizning rolingiz',
     roleAdmin: 'Admin',
     roleMember: "A'zo",
+    newMemberEmail: "Yangi a'zo emaili",
+    addMember: "Qo'shish",
+    memberAdded: "A'zo qo'shildi",
     teamHint:
-      "Yangi xodim avval ro'yxatdan o'tsin, so'ng uni jamoaga qo'shish uchun Supabase SQL Editor'da bitta buyruq ishga tushiring (admin bilan bog'laning).",
+      "Yangi xodimni qo'shish uchun avval u saytda ro'yxatdan o'tishi kerak — shundan keyin uning emailini shu yerga kiritib qo'shing.",
     theme: 'Koʻrinish',
     themeLight: 'Yorugʻ',
     themeDark: 'Qorongʻi',

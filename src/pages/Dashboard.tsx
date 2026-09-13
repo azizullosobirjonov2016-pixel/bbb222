@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import {
   AlertTriangle,
   Banknote,
@@ -12,6 +12,7 @@ import { t } from '@/i18n';
 import { useContracts } from '@/api/contracts';
 import { useAllFinance } from '@/api/finance';
 import { useCashbox } from '@/api/cashbox';
+import { useUnpaidCostsCount } from '@/api/costs';
 import { useActivity } from '@/api/activity';
 import { PageHeader } from '@/components/common/PageHeader';
 import { StatCard } from '@/components/common/StatCard';
@@ -35,6 +36,7 @@ export function Dashboard() {
     isError: fError,
   } = useAllFinance();
   const { data: cashbox } = useCashbox();
+  const { data: unpaidCount } = useUnpaidCostsCount();
   const { data: activity } = useActivity({ limit: 8 });
 
   const cashboxBalance =
@@ -78,6 +80,24 @@ export function Dashboard() {
           </Button>
         }
       />
+
+      {!loading && (stats.overdue > 0 || (unpaidCount ?? 0) > 0) && (
+        <div className="mb-4 flex flex-wrap items-center gap-2 rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm">
+          <AlertTriangle className="h-4 w-4 shrink-0 text-destructive" />
+          <span>
+            {stats.overdue > 0 &&
+              t.dashboard.overdueReminder(stats.overdue) + '. '}
+            {(unpaidCount ?? 0) > 0 &&
+              t.dashboard.unpaidReminder(unpaidCount ?? 0)}
+          </span>
+          <Link
+            to="/contracts"
+            className="ml-auto shrink-0 font-medium text-destructive hover:underline"
+          >
+            {t.common.details}
+          </Link>
+        </div>
+      )}
 
       {cError || fError ? (
         <EmptyState

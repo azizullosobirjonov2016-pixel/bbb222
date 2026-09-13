@@ -7,6 +7,7 @@ import {
   Trash2,
   ExternalLink,
   FileUp,
+  FileDown,
 } from 'lucide-react';
 import { t } from '@/i18n';
 import { useContract, useDeleteContract } from '@/api/contracts';
@@ -18,6 +19,7 @@ import { useCosts, useDeleteCost, useToggleCostPaid } from '@/api/costs';
 import { useBeneficiaries, useDeleteBeneficiary } from '@/api/beneficiaries';
 import { useActivity } from '@/api/activity';
 import { useIsAdmin } from '@/hooks/useTeamRole';
+import { useQueryParamState } from '@/hooks/useQueryParamState';
 import type {
   BeneficiaryPayout,
   Cost,
@@ -87,7 +89,8 @@ export function ContractDetail() {
   const toggleCostPaid = useToggleCostPaid(id);
   const delBeneficiary = useDeleteBeneficiary(id);
 
-  const [tab, setTab] = useState<TabKey>('obligations');
+  const [tab, setTabRaw] = useQueryParamState('tab', 'obligations');
+  const setTab = (v: TabKey) => setTabRaw(v);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const [obligationForm, setObligationForm] = useState<{
@@ -119,23 +122,23 @@ export function ContractDetail() {
     id: string;
   } | null>(null);
 
-  // Har bir bo'lim uchun alohida filtrlar
-  const [oblStatus, setOblStatus] = useState('');
-  const [oblQ, setOblQ] = useState('');
-  const [dlvFrom, setDlvFrom] = useState('');
-  const [dlvTo, setDlvTo] = useState('');
-  const [dlvQ, setDlvQ] = useState('');
-  const [payFrom, setPayFrom] = useState('');
-  const [payTo, setPayTo] = useState('');
-  const [payDir, setPayDir] = useState('');
-  const [payQ, setPayQ] = useState('');
-  const [costFrom, setCostFrom] = useState('');
-  const [costTo, setCostTo] = useState('');
-  const [costPaid, setCostPaid] = useState('');
-  const [costQ, setCostQ] = useState('');
-  const [benFrom, setBenFrom] = useState('');
-  const [benTo, setBenTo] = useState('');
-  const [benQ, setBenQ] = useState('');
+  // Har bir bo'lim uchun alohida filtrlar (URL'da saqlanadi)
+  const [oblStatus, setOblStatus] = useQueryParamState('oblStatus');
+  const [oblQ, setOblQ] = useQueryParamState('oblQ');
+  const [dlvFrom, setDlvFrom] = useQueryParamState('dlvFrom');
+  const [dlvTo, setDlvTo] = useQueryParamState('dlvTo');
+  const [dlvQ, setDlvQ] = useQueryParamState('dlvQ');
+  const [payFrom, setPayFrom] = useQueryParamState('payFrom');
+  const [payTo, setPayTo] = useQueryParamState('payTo');
+  const [payDir, setPayDir] = useQueryParamState('payDir');
+  const [payQ, setPayQ] = useQueryParamState('payQ');
+  const [costFrom, setCostFrom] = useQueryParamState('costFrom');
+  const [costTo, setCostTo] = useQueryParamState('costTo');
+  const [costPaid, setCostPaid] = useQueryParamState('costPaid');
+  const [costQ, setCostQ] = useQueryParamState('costQ');
+  const [benFrom, setBenFrom] = useQueryParamState('benFrom');
+  const [benTo, setBenTo] = useQueryParamState('benTo');
+  const [benQ, setBenQ] = useQueryParamState('benQ');
 
   const filteredObligations = useMemo(
     () =>
@@ -281,6 +284,13 @@ export function ContractDetail() {
               <Pencil className="h-4 w-4" />
               {t.common.edit}
             </Button>
+            <Button
+              variant="outline"
+              onClick={() => window.open(`/contracts/${id}/print`, '_blank')}
+            >
+              <FileDown className="h-4 w-4" />
+              {t.common.pdfReport}
+            </Button>
             {isAdmin && (
               <Button
                 variant="ghost"
@@ -373,7 +383,12 @@ export function ContractDetail() {
         )}
       </Card>
 
-      <Tabs tabs={tabs} value={tab} onChange={setTab} className="mb-4" />
+      <Tabs
+        tabs={tabs}
+        value={tab as TabKey}
+        onChange={setTab}
+        className="mb-4"
+      />
 
       {tab === 'obligations' && (
         <Section

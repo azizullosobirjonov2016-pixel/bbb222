@@ -3,6 +3,7 @@ import { LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { t } from '@/i18n';
 import { useAuth } from '@/hooks/useAuth';
+import { useDeadlineReminders } from '@/hooks/useDeadlineReminders';
 import { Button } from '@/components/ui/button';
 import { navItems } from './nav-items';
 import { ThemeToggle } from './ThemeToggle';
@@ -24,6 +25,7 @@ function Brand() {
 export function AppLayout() {
   const { signOut, user } = useAuth();
   const primary = navItems.filter((n) => n.primary);
+  useDeadlineReminders();
 
   return (
     <div className="min-h-screen bg-background">

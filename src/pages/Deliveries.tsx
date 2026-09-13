@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { useQueryParamState } from '@/hooks/useQueryParamState';
 import { PackageCheck } from 'lucide-react';
 import { t } from '@/i18n';
 import { useDeliveries } from '@/api/deliveries';
@@ -17,9 +18,9 @@ import type { CurrencyCode } from '@/types/db';
 
 export function Deliveries() {
   const { data, isLoading, isError } = useDeliveries();
-  const [q, setQ] = useState('');
-  const [dateFrom, setDateFrom] = useState('');
-  const [dateTo, setDateTo] = useState('');
+  const [q, setQ] = useQueryParamState('q');
+  const [dateFrom, setDateFrom] = useQueryParamState('from');
+  const [dateTo, setDateTo] = useQueryParamState('to');
 
   const filtered = useMemo(() => {
     const s = q.trim().toLowerCase();

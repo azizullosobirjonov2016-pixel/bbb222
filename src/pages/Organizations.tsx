@@ -13,6 +13,7 @@ import { EmptyState } from '@/components/common/EmptyState';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { OrganizationForm } from '@/components/forms/OrganizationForm';
 import { useIsAdmin } from '@/hooks/useTeamRole';
+import { useQueryParamState } from '@/hooks/useQueryParamState';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -30,7 +31,7 @@ export function Organizations() {
   const del = useDeleteOrganization();
   const { toast } = useToast();
   const isAdmin = useIsAdmin();
-  const [q, setQ] = useState('');
+  const [q, setQ] = useQueryParamState('q');
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Organization | null>(null);
   const [toDelete, setToDelete] = useState<OrgWithStats | null>(null);

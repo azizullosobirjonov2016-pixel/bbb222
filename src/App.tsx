@@ -13,6 +13,8 @@ import { ContractForm } from '@/pages/ContractForm';
 import { ContractImport } from '@/pages/ContractImport';
 import { Deliveries } from '@/pages/Deliveries';
 import { Finance } from '@/pages/Finance';
+import { FinancePrint } from '@/pages/FinancePrint';
+import { ContractPrint } from '@/pages/ContractPrint';
 import { Cashbox } from '@/pages/Cashbox';
 import { Activity } from '@/pages/Activity';
 import { Settings } from '@/pages/Settings';
@@ -36,6 +38,8 @@ export default function App() {
 
   return (
     <Routes>
+      <Route path="/contracts/:id/print" element={<ContractPrint />} />
+      <Route path="/finance/print" element={<FinancePrint />} />
       <Route element={<AppLayout />}>
         <Route path="/" element={<Dashboard />} />
         <Route path="/companies" element={<Companies />} />

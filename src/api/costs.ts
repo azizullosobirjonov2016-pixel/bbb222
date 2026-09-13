@@ -25,6 +25,22 @@ export function useCosts(contractId: string | undefined) {
   });
 }
 
+/** Barcha shartnomalar bo'yicha to'lanmagan xarajatlar soni (eslatma uchun) */
+export function useUnpaidCostsCount() {
+  return useQuery({
+    queryKey: ['costs', 'unpaid-count'],
+    queryFn: async (): Promise<number> => {
+      const { count, error } = await supabase
+        .from('costs')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_paid', false);
+      if (error) throw error;
+      return count ?? 0;
+    },
+    ...CACHE_TIME,
+  });
+}
+
 function invalidate(qc: ReturnType<typeof useQueryClient>, contractId: string) {
   qc.invalidateQueries({ queryKey: qk.costs(contractId) });
   qc.invalidateQueries({ queryKey: qk.contract(contractId) });

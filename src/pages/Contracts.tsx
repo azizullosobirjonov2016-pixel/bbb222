@@ -1,8 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useQueryParamState } from '@/hooks/useQueryParamState';
 import { AlertTriangle, FileText, FileUp, Plus } from 'lucide-react';
 import { t } from '@/i18n';
-import type { ContractStatus } from '@/types/db';
 import { useContracts } from '@/api/contracts';
 import { useAllFinance } from '@/api/finance';
 import { PageHeader } from '@/components/common/PageHeader';
@@ -37,10 +37,10 @@ export function Contracts() {
   const { data, isLoading, isError } = useContracts();
   const { data: finance } = useAllFinance();
   const navigate = useNavigate();
-  const [q, setQ] = useState('');
-  const [status, setStatus] = useState<ContractStatus | ''>('');
-  const [dateFrom, setDateFrom] = useState('');
-  const [dateTo, setDateTo] = useState('');
+  const [q, setQ] = useQueryParamState('q');
+  const [status, setStatus] = useQueryParamState('status');
+  const [dateFrom, setDateFrom] = useQueryParamState('from');
+  const [dateTo, setDateTo] = useQueryParamState('to');
 
   const profitByContract = useMemo(() => {
     const m = new Map<string, number>();
@@ -99,7 +99,7 @@ export function Contracts() {
           className="sm:max-w-[200px]"
           options={statusFilterOptions}
           value={status}
-          onChange={(e) => setStatus(e.target.value as ContractStatus | '')}
+          onChange={(e) => setStatus(e.target.value)}
         />
         <DateRangeFilter
           from={dateFrom}

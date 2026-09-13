@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
+import { useQueryParamState } from '@/hooks/useQueryParamState';
 import {
   Bar,
   BarChart,
@@ -9,7 +10,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { TrendingDown, TrendingUp, Wallet } from 'lucide-react';
+import { FileDown, TrendingDown, TrendingUp, Wallet } from 'lucide-react';
 import { t } from '@/i18n';
 import { useAllFinance } from '@/api/finance';
 import { useContracts } from '@/api/contracts';
@@ -22,6 +23,7 @@ import {
   inDateRange,
 } from '@/components/common/DateRangeFilter';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Select } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatMoney, formatMoneyShort } from '@/lib/format';
@@ -45,9 +47,9 @@ export function Finance() {
   const { data: allFinance, isLoading } = useAllFinance();
   const { data: contracts } = useContracts();
   const { data: companies } = useCompanies();
-  const [companyId, setCompanyId] = useState('');
-  const [dateFrom, setDateFrom] = useState('');
-  const [dateTo, setDateTo] = useState('');
+  const [companyId, setCompanyId] = useQueryParamState('company');
+  const [dateFrom, setDateFrom] = useQueryParamState('from');
+  const [dateTo, setDateTo] = useQueryParamState('to');
 
   const companyName = useMemo(() => {
     const m = new Map<string, string>();
@@ -199,6 +201,19 @@ export function Finance() {
               onFromChange={setDateFrom}
               onToChange={setDateTo}
             />
+            <Button
+              variant="outline"
+              onClick={() => {
+                const params = new URLSearchParams();
+                if (companyId) params.set('company', companyId);
+                if (dateFrom) params.set('from', dateFrom);
+                if (dateTo) params.set('to', dateTo);
+                window.open(`/finance/print?${params.toString()}`, '_blank');
+              }}
+            >
+              <FileDown className="h-4 w-4" />
+              {t.common.pdfReport}
+            </Button>
           </div>
         }
       />

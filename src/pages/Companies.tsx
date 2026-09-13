@@ -13,6 +13,7 @@ import { EmptyState } from '@/components/common/EmptyState';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { CompanyForm } from '@/components/forms/CompanyForm';
 import { useIsAdmin } from '@/hooks/useTeamRole';
+import { useQueryParamState } from '@/hooks/useQueryParamState';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -26,7 +27,7 @@ export function Companies() {
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Company | null>(null);
   const [toDelete, setToDelete] = useState<CompanyWithStats | null>(null);
-  const [q, setQ] = useState('');
+  const [q, setQ] = useQueryParamState('q');
 
   const filtered = useMemo(() => {
     const s = q.trim().toLowerCase();

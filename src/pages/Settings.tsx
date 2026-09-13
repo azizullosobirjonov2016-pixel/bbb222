@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 import {
   CheckCircle2,
   Download,
   FileSpreadsheet,
   LogOut,
+  Trash2,
+  UserPlus,
   XCircle,
 } from 'lucide-react';
 import { t } from '@/i18n';
@@ -11,11 +13,17 @@ import { isSupabaseConfigured } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/hooks/useTheme';
 import { useIsAdmin, useTeamMembers } from '@/hooks/useTeamRole';
+import {
+  useAddTeamMember,
+  useRemoveTeamMember,
+  useSetTeamMemberRole,
+} from '@/api/team';
 import { useToast } from '@/components/ui/toast';
 import { exportAllJson, exportContractsCsv } from '@/lib/export';
 import { PageHeader } from '@/components/common/PageHeader';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 
@@ -26,8 +34,29 @@ export function Settings() {
   const { theme, setTheme } = useTheme();
   const isAdmin = useIsAdmin();
   const { data: team } = useTeamMembers();
+  const addMember = useAddTeamMember();
+  const removeMember = useRemoveTeamMember();
+  const setRole = useSetTeamMemberRole();
   const { toast } = useToast();
   const [busy, setBusy] = useState<'json' | 'csv' | null>(null);
+  const [newEmail, setNewEmail] = useState('');
+  const [newRole, setNewRole] = useState<'admin' | 'member'>('member');
+
+  const submitAddMember = (e: FormEvent) => {
+    e.preventDefault();
+    if (!newEmail.trim()) return;
+    addMember.mutate(
+      { email: newEmail.trim(), role: newRole },
+      {
+        onSuccess: () => {
+          toast(t.settings.memberAdded);
+          setNewEmail('');
+          setNewRole('member');
+        },
+        onError: (e) => toast(e.message, 'error'),
+      },
+    );
+  };
 
   const runExport = async (kind: 'json' | 'csv') => {
     setBusy(kind);
@@ -80,14 +109,88 @@ export function Settings() {
                   <span className="truncate text-muted-foreground">
                     {m.email ?? m.user_id}
                   </span>
-                  <Badge tone={m.role === 'admin' ? 'primary' : 'muted'}>
-                    {m.role === 'admin'
-                      ? t.settings.roleAdmin
-                      : t.settings.roleMember}
-                  </Badge>
+                  <div className="flex shrink-0 items-center gap-2">
+                    {isAdmin ? (
+                      <Select
+                        className="h-8 w-[110px] py-0 text-xs"
+                        value={m.role}
+                        disabled={m.user_id === user?.id}
+                        onChange={(e) =>
+                          setRole.mutate(
+                            {
+                              userId: m.user_id,
+                              role: e.target.value as 'admin' | 'member',
+                            },
+                            { onError: (er) => toast(er.message, 'error') },
+                          )
+                        }
+                        options={[
+                          { value: 'admin', label: t.settings.roleAdmin },
+                          { value: 'member', label: t.settings.roleMember },
+                        ]}
+                      />
+                    ) : (
+                      <Badge tone={m.role === 'admin' ? 'primary' : 'muted'}>
+                        {m.role === 'admin'
+                          ? t.settings.roleAdmin
+                          : t.settings.roleMember}
+                      </Badge>
+                    )}
+                    {isAdmin && m.user_id !== user?.id && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-destructive"
+                        aria-label={t.common.delete}
+                        loading={
+                          removeMember.isPending &&
+                          removeMember.variables === m.user_id
+                        }
+                        onClick={() =>
+                          removeMember.mutate(m.user_id, {
+                            onSuccess: () => toast(t.common.deleted),
+                            onError: (er) => toast(er.message, 'error'),
+                          })
+                        }
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
                 </li>
               ))}
             </ul>
+          )}
+
+          {isAdmin && (
+            <form
+              onSubmit={submitAddMember}
+              className="flex flex-wrap items-end gap-2 border-t pt-3"
+            >
+              <div className="min-w-[180px] flex-1">
+                <Input
+                  type="email"
+                  placeholder={t.settings.newMemberEmail}
+                  value={newEmail}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                />
+              </div>
+              <Select
+                className="w-[130px]"
+                value={newRole}
+                onChange={(e) =>
+                  setNewRole(e.target.value as 'admin' | 'member')
+                }
+                options={[
+                  { value: 'member', label: t.settings.roleMember },
+                  { value: 'admin', label: t.settings.roleAdmin },
+                ]}
+              />
+              <Button type="submit" loading={addMember.isPending}>
+                <UserPlus className="h-4 w-4" />
+                {t.settings.addMember}
+              </Button>
+            </form>
           )}
           <p className="text-xs text-muted-foreground">{t.settings.teamHint}</p>
         </CardContent>

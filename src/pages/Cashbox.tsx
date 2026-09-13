@@ -1,5 +1,5 @@
-import { useState } from 'react';
 import { Wallet, TrendingUp, TrendingDown, Users } from 'lucide-react';
+import { useQueryParamState } from '@/hooks/useQueryParamState';
 import { t } from '@/i18n';
 import { useCashbox } from '@/api/cashbox';
 import { PageHeader } from '@/components/common/PageHeader';
@@ -11,8 +11,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { formatMoney } from '@/lib/format';
 
 export function Cashbox() {
-  const [dateFrom, setDateFrom] = useState('');
-  const [dateTo, setDateTo] = useState('');
+  const [dateFrom, setDateFrom] = useQueryParamState('from');
+  const [dateTo, setDateTo] = useQueryParamState('to');
   const { data, isLoading, isError } = useCashbox(dateFrom, dateTo);
 
   const filterBar = (

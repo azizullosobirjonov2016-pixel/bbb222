@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { t } from '@/i18n';
+import { useQueryParamState } from '@/hooks/useQueryParamState';
 import { useActivity } from '@/api/activity';
 import { PageHeader } from '@/components/common/PageHeader';
 import { EmptyState } from '@/components/common/EmptyState';
@@ -29,10 +30,10 @@ const entityOptions = [
 ];
 
 export function Activity() {
-  const [entity, setEntity] = useState('');
-  const [q, setQ] = useState('');
-  const [dateFrom, setDateFrom] = useState('');
-  const [dateTo, setDateTo] = useState('');
+  const [entity, setEntity] = useQueryParamState('entity');
+  const [q, setQ] = useQueryParamState('q');
+  const [dateFrom, setDateFrom] = useQueryParamState('from');
+  const [dateTo, setDateTo] = useQueryParamState('to');
   const { data, isLoading, isError } = useActivity({
     entityType: entity || undefined,
     limit: 200,
