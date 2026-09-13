@@ -12,14 +12,13 @@ create or replace function public.add_team_member(
   member_email text,
   member_role text default 'member'
 )
-returns public.team_members
+returns void
 language plpgsql
 security definer
 set search_path = public
 as $$
 declare
   v_uid  uuid;
-  v_row  public.team_members;
 begin
   if not public.is_team_admin(auth.uid()) then
     raise exception 'Faqat administrator yangi a''zo qo''sha oladi.';
@@ -36,10 +35,7 @@ begin
 
   insert into public.team_members (user_id, email, role, added_by)
   values (v_uid, member_email, member_role, auth.uid())
-  on conflict (user_id) do update set role = excluded.role
-  returning * into v_row;
-
-  return v_row;
+  on conflict (user_id) do update set role = excluded.role;
 end;
 $$;
 
