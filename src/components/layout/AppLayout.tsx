@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
-import { LogOut } from 'lucide-react';
+import { LogOut, Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { t } from '@/i18n';
 import { useAuth } from '@/hooks/useAuth';
@@ -25,6 +26,7 @@ function Brand() {
 export function AppLayout() {
   const { signOut, user } = useAuth();
   const primary = navItems.filter((n) => n.primary);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   useDeadlineReminders();
 
   return (
@@ -123,7 +125,65 @@ export function AppLayout() {
             </NavLink>
           );
         })}
+        <button
+          type="button"
+          onClick={() => setDrawerOpen(true)}
+          className="flex flex-1 flex-col items-center gap-1 py-2 text-[11px] font-medium text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <Menu className="h-5 w-5" />
+          <span className="truncate">{t.nav.more}</span>
+        </button>
       </nav>
+
+      {/* Mobile: to'liq menyu (drawer) */}
+      {drawerOpen && (
+        <div className="fixed inset-0 z-40 lg:hidden">
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setDrawerOpen(false)}
+          />
+          <div className="absolute inset-x-0 bottom-0 max-h-[80vh] overflow-y-auto rounded-t-xl bg-card p-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] shadow-lg">
+            <div className="mb-3 flex items-center justify-between">
+              <Brand />
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setDrawerOpen(false)}
+                aria-label={t.common.close}
+                className="h-8 w-8"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            <nav className="grid grid-cols-3 gap-2">
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    end={item.to === '/'}
+                    onClick={() => setDrawerOpen(false)}
+                    className={({ isActive }) =>
+                      cn(
+                        'flex flex-col items-center gap-1.5 rounded-md px-2 py-3 text-xs font-medium transition-colors',
+                        isActive
+                          ? 'bg-primary/10 text-primary'
+                          : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                      )
+                    }
+                  >
+                    <Icon className="h-5 w-5" />
+                    <span className="text-center leading-tight">
+                      {item.label}
+                    </span>
+                  </NavLink>
+                );
+              })}
+            </nav>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

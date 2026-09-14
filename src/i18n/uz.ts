@@ -17,6 +17,7 @@ export const uz = {
     cashbox: 'Kassa',
     activity: 'Harakatlar',
     settings: 'Sozlamalar',
+    more: "Ko'proq",
   },
   common: {
     add: "Qo'shish",

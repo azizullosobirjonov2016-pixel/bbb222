@@ -17,13 +17,13 @@ export function DateRangeFilter({
   className,
 }: Props) {
   return (
-    <div className={`flex items-center gap-2 ${className ?? ''}`}>
+    <div className={`flex flex-wrap items-center gap-2 ${className ?? ''}`}>
       <Input
         type="date"
         value={from}
         onChange={(e) => onFromChange(e.target.value)}
         aria-label={t.common.from}
-        className="w-[150px]"
+        className="w-[132px] min-w-0 flex-1 sm:w-[150px] sm:flex-none"
       />
       <span className="shrink-0 text-sm text-muted-foreground">
         {t.common.to}
@@ -33,7 +33,7 @@ export function DateRangeFilter({
         value={to}
         onChange={(e) => onToChange(e.target.value)}
         aria-label={t.common.to}
-        className="w-[150px]"
+        className="w-[132px] min-w-0 flex-1 sm:w-[150px] sm:flex-none"
       />
     </div>
   );
